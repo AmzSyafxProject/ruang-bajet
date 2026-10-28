@@ -1,7 +1,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 import { getDatabase, ref, get, set } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
-const firebaseConfig={apiKey:'AIzaSyD5lPwyOJKy08uqNF0udYVDKqnGuj9xnzY',authDomain:'ruang-bajet.firebaseapp.com',projectId:'ruang-bajet',storageBucket:'ruang-bajet.firebasestorage.app',messagingSenderId:'372842407002',appId:'1:372842407002:web:b0302b4f0c97e4b0f46463',measurementId:'G-E2G6FRVTEN'};
+const firebaseConfig={apiKey:'AIzaSyD5lPwyOJKy08uqNF0udYVDKqnGuj9xnzY',authDomain:'ruang-bajet.firebaseapp.com',databaseURL:'https://ruang-bajet-default-rtdb.asia-southeast1.firebasedatabase.app',projectId:'ruang-bajet',storageBucket:'ruang-bajet.firebasestorage.app',messagingSenderId:'372842407002',appId:'1:372842407002:web:b0302b4f0c97e4b0f46463',measurementId:'G-E2G6FRVTEN'};
 const firebaseApp=initializeApp(firebaseConfig);const auth=getAuth(firebaseApp);const db=getDatabase(firebaseApp);let remoteUser=null;
 const initial={income:1100,expenses:[['Rumah sewa Cheras','Rumah',83],['Rumah Sewa Pasir Gudang','Rumah',210],['Atome','BNPL',6.6],['Shopee BNPL','BNPL',44],['Hotlink','Internet',73],['U Mobile','Internet',28],['YouTube Premium','Internet',13],['iCloud','Internet',12],['Claude AI','AI',100]],commute:{distance:13,days:22,efficiency:15,fuelPrice:2.05,roundTrip:true},target:200};
 let data=JSON.parse(localStorage.getItem('ruang-bajet')||'null')||structuredClone(initial);let editing=-1;let filter='Semua';

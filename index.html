@@ -41,21 +41,8 @@
         <article class="metric accent-card"><span class="label">Sasaran simpanan</span><strong id="target-display">RM200.00</strong><span class="metric-note" id="target-note">RM330.40 selepas simpanan</span></article>
       </section>
 
-      <section class="content-grid">
-        <article class="panel expenses-panel" id="expenses-section">
-          <div class="panel-head"><div><p class="eyebrow">02 / perbelanjaan</p><h2>Komitmen bulanan</h2><span class="paid-status" id="paid-count">0/0 dah bayar</span></div><button class="add-btn" id="add-expense">+ Tambah item</button></div>
-          <div class="category-summary" id="category-summary"></div>
-          <div class="expense-table"><div class="table-head"><span></span><span>Item</span><span>Kategori</span><span>Jumlah</span><span></span></div><div id="expense-list"></div></div>
-          <p class="helper">Klik nilai untuk ubah. Semua perubahan disimpan pada peranti ini sahaja.</p>
-        </article>
-
-        <aside class="side-column">
-          <article class="panel commute-panel" id="commute-section"><div class="panel-head"><div><p class="eyebrow">03 / perjalanan</p><h2>Rutin komuter</h2></div><span class="roundel">AXIA<br>13KM</span></div><p class="muted">Anggaran petrol harian berdasarkan perjalanan ke kelas.</p><div class="commute-stat"><div><span class="label">Kos sebulan</span><strong id="commute-total">RM0.00</strong></div><div><span class="label">Kos sehari</span><strong id="commute-daily">RM0.00</strong></div></div><div class="field-grid"><label>Jarak sehala (km)<input id="distance" type="number" min="0" step="0.1"></label><label>Hari / bulan<input id="days" type="number" min="0" step="1"></label><label>Kecekapan (km/L)<input id="efficiency" type="number" min="1" step="0.1"></label><label>Harga petrol / L<input id="fuel-price" type="number" min="0" step="0.01"></label></div><label class="toggle-label"><input id="round-trip" type="checkbox"><span class="toggle"></span> Kira perjalanan pergi-balik</label></article>
-          <article class="panel target-panel" id="settings"><p class="eyebrow">04 / niat</p><h2>Ruang untuk simpan</h2><p class="muted">Tetapkan angka asas supaya baki anda ada arah.</p><div class="field-grid"><label>Pendapatan bulanan<input id="income-input" type="number" min="0" step="1"></label><label>Sasaran simpanan<input id="savings-target" type="number" min="0" step="1"></label></div><div class="target-callout"><span id="target-percent">36%</span><p>daripada baki semasa<br>disisihkan</p></div></article>
-        </aside>
-      </section>
       <section class="panel health-section" id="health-section">
-        <div class="panel-head"><div><p class="eyebrow">05 / kesihatan</p><h2>Skor kewangan</h2></div><span id="health-grade-badge" class="health-grade A">A</span></div>
+        <div class="panel-head"><div><p class="eyebrow">02 / kesihatan</p><h2>Skor kewangan</h2></div><span id="health-grade-badge" class="health-grade A">A</span></div>
         <div class="health-layout">
           <div>
             <div class="health-gauge">
@@ -76,6 +63,20 @@
           </div>
           <div class="health-tips" id="health-tips"></div>
         </div>
+      </section>
+
+      <section class="content-grid">
+        <article class="panel expenses-panel" id="expenses-section">
+          <div class="panel-head"><div><p class="eyebrow">03 / perbelanjaan</p><h2>Komitmen bulanan</h2><span class="paid-status" id="paid-count">0/0 dah bayar</span></div><button class="add-btn" id="add-expense">+ Tambah item</button></div>
+          <div class="category-summary" id="category-summary"></div>
+          <div class="expense-table"><div class="table-head"><span></span><span>Item</span><span>Kategori</span><span>Jumlah</span><span></span></div><div id="expense-list"></div></div>
+          <p class="helper">Klik nilai untuk ubah. Semua perubahan disimpan pada peranti ini sahaja.</p>
+        </article>
+
+        <aside class="side-column">
+          <article class="panel commute-panel" id="commute-section"><div class="panel-head"><div><p class="eyebrow">04 / perjalanan</p><h2>Rutin komuter</h2></div><span class="roundel">AXIA<br>13KM</span></div><p class="muted">Anggaran petrol harian berdasarkan perjalanan ke kelas.</p><div class="commute-stat"><div><span class="label">Kos sebulan</span><strong id="commute-total">RM0.00</strong></div><div><span class="label">Kos sehari</span><strong id="commute-daily">RM0.00</strong></div></div><div class="field-grid"><label>Jarak sehala (km)<input id="distance" type="number" min="0" step="0.1"></label><label>Hari / bulan<input id="days" type="number" min="0" step="1"></label><label>Kecekapan (km/L)<input id="efficiency" type="number" min="1" step="0.1"></label><label>Harga petrol / L<input id="fuel-price" type="number" min="0" step="0.01"></label></div><label class="toggle-label"><input id="round-trip" type="checkbox"><span class="toggle"></span> Kira perjalanan pergi-balik</label></article>
+          <article class="panel target-panel" id="settings"><p class="eyebrow">05 / niat</p><h2>Ruang untuk simpan</h2><p class="muted">Tetapkan angka asas supaya baki anda ada arah.</p><div class="field-grid"><label>Pendapatan bulanan<input id="income-input" type="number" min="0" step="1"></label><label>Sasaran simpanan<input id="savings-target" type="number" min="0" step="1"></label></div><div class="target-callout"><span id="target-percent">36%</span><p>daripada baki semasa<br>disisihkan</p></div></article>
+        </aside>
       </section>
       <section class="panel timeline-section" id="timeline-section">
         <div class="panel-head"><div><p class="eyebrow">06 / jadual</p><h2>Timeline bayaran</h2></div><span class="tl-month-label" id="tl-month-label"></span></div>

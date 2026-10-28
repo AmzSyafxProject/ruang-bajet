@@ -29,7 +29,7 @@ function renderHealth(){
   const arc=$('health-arc');if(arc){arc.style.strokeDashoffset=offset;arc.style.stroke=gradeColor}
   const scoreEl=$('health-score');if(scoreEl)scoreEl.textContent=score;
   const badge=$('health-grade-badge');if(badge){badge.textContent=grade;badge.className=`health-grade ${grade}`}
-  const setStat=(id,valId,pct,cap=100)=>{const el=$(id);const vel=$(valId);if(el)el.style.width=`${Math.min(100,pct*100/cap)}%`;if(vel)vel.textContent=`${Math.round(pct*100)}%`};
+  const setStat=(id,valId,pct,cap=100)=>{const el=$(id);const vel=$(valId);if(el)el.style.width=`${Math.min(100,pct*100)}%`;if(vel)vel.textContent=`${Math.round(pct*100)}%`};
   setStat('hb-savings','hb-savings-val',savingsRatio);
   setStat('hb-burden','hb-burden-val',burdenRatio);
   setStat('hb-paid','hb-paid-val',paidRatio);

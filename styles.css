@@ -36,8 +36,8 @@ input,textarea,select{-webkit-user-select:text;user-select:text}body:before{cont
 .tl-day{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0}
 .tl-day-num{font:600 20px 'Playfair Display';line-height:1;letter-spacing:-.03em}
 .tl-month{font:9px 'DM Mono';color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
-.tl-connector{display:flex;flex-direction:column;align-items:center;padding:10px 0}
-.tl-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--line);background:var(--white);flex-shrink:0;margin-top:8px;transition:background .2s,border-color .2s}
+.tl-connector{display:flex;flex-direction:column;align-items:center;padding:0}
+.tl-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--line);background:var(--white);flex-shrink:0;margin-top:20px;transition:background .2s,border-color .2s}
 .tl-line{flex:1;width:1px;background:var(--line);margin-top:4px}
 .tl-item:last-child .tl-line{display:none}
 .tl-content{display:flex;flex-direction:column;justify-content:center;padding:10px 0;gap:2px}
@@ -69,10 +69,9 @@ input,textarea,select{-webkit-user-select:text;user-select:text}body:before{cont
 .tl-nodate-item:first-of-type{border-top:0}
 @media(max-width:850px){.shell{padding:0 18px}.topbar{height:70px}.top-meta{font-size:0}.hero{padding:55px 0 42px}.hero-notation{display:none}.summary-grid{grid-template-columns:1fr 1fr;margin-bottom:30px}.metric-primary{grid-column:span 2}.content-grid{grid-template-columns:1fr}.side-column{grid-template-columns:1fr 1fr}.commute-panel{grid-column:span 2}.panel{padding:21px}.table-head,.expense-row{grid-template-columns:24px 1fr auto auto 52px;gap:8px}}
 @media(max-width:500px){.shell{padding:0 14px}.side-column{display:block}.side-column .panel{margin-bottom:10px}.hero h1{font-size:55px}.summary-grid{gap:7px}.metric{padding:17px;min-height:130px}.metric strong{font-size:24px}.metric-primary strong{font-size:35px}
-/* Mobile table: collapse category to 0, keep 5-col grid */
-.table-head,.expense-row{grid-template-columns:22px 1fr 0 auto 48px;gap:8px 0}
-.expense-category{overflow:hidden;width:0;padding:0;margin:0;opacity:0;font-size:0}
-.table-head span:nth-child(3){overflow:hidden;width:0;padding:0;font-size:0}
+/* Mobile table: hide category, 4-col grid */
+.table-head,.expense-row{grid-template-columns:24px minmax(0,1fr) auto 50px;gap:0 12px}
+.expense-category,.table-head span:nth-child(3){display:none}
 .expense-row{min-height:52px}
 .expense-name{font-size:13px}
 .expense-amount{font-size:12px;padding-right:6px}
@@ -80,3 +79,20 @@ input,textarea,select{-webkit-user-select:text;user-select:text}body:before{cont
 .row-actions button{font-size:13px;padding:3px 4px}
 .topbar .icon-btn{margin-left:5px}
 .add-btn,.secondary-btn{padding:9px 13px;font-size:10px}}
+/* ---- UI polish pass ---- */
+.expense-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tick-btn{flex-shrink:0}
+.health-section .panel-head{align-items:flex-start}
+.health-grade{margin-top:0;min-width:32px;text-align:center}
+@media(min-width:701px){
+.tl-content{display:grid;grid-template-columns:1fr auto;grid-template-areas:"n a" "c a";column-gap:20px;align-items:center}
+.tl-name{grid-area:n}.tl-cat{grid-area:c}.tl-amt{grid-area:a;margin:0;font-size:14px}
+.tl-item{grid-template-columns:52px 28px 1fr 96px}.tl-badge{justify-self:end}
+}
+@media(max-width:850px){.accent-card{grid-column:span 2;min-height:auto}
+.health-layout{grid-template-columns:1fr;gap:24px}.health-tips{grid-column:auto;flex-direction:column}.health-tip{min-width:0}}
+@media(max-width:500px){.summary-grid{gap:8px}.metric-primary{margin-bottom:0}
+.panel-head{gap:12px}.panel-head h2{font-size:28px}
+.tl-item{grid-template-columns:40px 20px minmax(0,1fr) auto;gap:0 8px}
+.tl-name{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tl-content{min-width:0}}

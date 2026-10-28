@@ -13,4 +13,28 @@ function render(){let total=data.expenses.reduce((s,e)=>s+Number(e[2]),0),bal=da
   $('expense-list').innerHTML=data.expenses.map((e,i)=>filter==='Semua'||e[1]===filter?`<div class="expense-row${e[3]?' paid':''}"><button class="tick-btn" data-tick="${i}" title="${e[3]?'Tandakan belum bayar':'Tandakan dah bayar'}">${e[3]?'✓':''}</button><span class="expense-name">${e[0]}</span><span class="expense-category">${e[1]}</span><span class="expense-amount">${money(e[2])}</span><span class="row-actions"><button title="Edit" data-edit="${i}">✎</button><button title="Padam" data-delete="${i}">×</button></span></div>`:'').join('');document.querySelectorAll('[data-tick]').forEach(b=>b.onclick=()=>{data.expenses[+b.dataset.tick][3]=!data.expenses[+b.dataset.tick][3];save();render()});document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openModal(+b.dataset.edit));document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>{data.expenses.splice(+b.dataset.delete,1);save();render()})}
 function openModal(i=-1){editing=i;$('modal-title').textContent=i<0?'Item baru':'Edit item';$('expense-name').value=i<0?'':data.expenses[i][0];$('expense-category').value=i<0?'Lain-lain':data.expenses[i][1];$('expense-amount').value=i<0?'':data.expenses[i][2];$('modal').classList.add('open');$('expense-name').focus()}function closeModal(){$('modal').classList.remove('open')}
 $('expense-form').onsubmit=e=>{e.preventDefault();let row=[$('expense-name').value,$('expense-category').value,Number($('expense-amount').value)];editing<0?data.expenses.push(row):data.expenses[editing]=row;closeModal();save();render()};$('add-expense').onclick=()=>openModal();$('close-modal').onclick=closeModal;$('cancel-modal').onclick=closeModal;$('modal').onclick=e=>{if(e.target.id==='modal')closeModal()};$('reset-btn').onclick=()=>{if(confirm('Pulihkan angka asal?')){data=structuredClone(initial);filter='Semua';save();render()}};document.querySelectorAll('[data-scroll]').forEach(b=>b.onclick=()=>document.getElementById(b.dataset.scroll).scrollIntoView());$('income-input').oninput=e=>{data.income=Number(e.target.value);save();render()};['distance','days','efficiency','fuel-price'].forEach((id,i)=>$(id).oninput=e=>{data.commute[Object.keys(data.commute)[i]]=Number(e.target.value);save();render()});$('round-trip').onchange=e=>{data.commute.roundTrip=e.target.checked;save();render()};$('savings-target').oninput=e=>{data.target=Number(e.target.value);save();render()};render();
+async function fetchFromFirebase(){if(!remoteUser)return;const snap=await get(ref(db,`users/${remoteUser.uid}`));if(snap.exists()){data=snap.val();localStorage.setItem('ruang-bajet',JSON.stringify(data));render()}}
 signInAnonymously(auth).then(async credential=>{remoteUser=credential.user;const snap=await get(ref(db,`users/${remoteUser.uid}`));if(snap.exists()){data=snap.val();localStorage.setItem('ruang-bajet',JSON.stringify(data));render()}else await set(ref(db,`users/${remoteUser.uid}`),data);$('saved-status').textContent='Disimpan ke Firebase'}).catch(err=>{console.warn('Firebase belum aktif:',err);$('saved-status').textContent='Disimpan secara lokal'});
+
+// Pull-to-refresh
+(function(){
+  let startY=0,pulling=false,indicator=$('ptr-indicator');
+  const THRESHOLD=72;
+  document.addEventListener('touchstart',e=>{if(window.scrollY===0)startY=e.touches[0].clientY},{ passive:true });
+  document.addEventListener('touchmove',e=>{
+    if(startY===0)return;
+    const dy=e.touches[0].clientY-startY;
+    if(dy>0&&window.scrollY===0){pulling=true;const prog=Math.min(dy/THRESHOLD,1);indicator.style.transform=`translateY(${Math.min(dy*0.45,42)}px)`;indicator.style.opacity=prog;indicator.querySelector('.ptr-arrow').style.transform=`rotate(${prog*180}deg)`}
+  },{passive:true});
+  document.addEventListener('touchend',async()=>{
+    if(!pulling){startY=0;return}
+    pulling=false;startY=0;
+    if(parseFloat(indicator.style.opacity||0)>=0.9){
+      indicator.classList.add('loading');
+      $('saved-status').textContent='Memuatkan...';
+      try{await fetchFromFirebase();$('saved-status').textContent='Dikemaskini';}catch(e){$('saved-status').textContent='Gagal memuatkan';}
+      setTimeout(()=>$('saved-status').textContent=remoteUser?'Disimpan ke Firebase':'Disimpan secara lokal',1500);
+    }
+    indicator.style.transform='';indicator.style.opacity='0';indicator.classList.remove('loading');
+  });
+})();

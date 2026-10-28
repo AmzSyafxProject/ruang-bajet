@@ -2,7 +2,7 @@
 <html lang="ms">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#f3efe7" />
   <title>Ruang Bajet — dashboard kewangan peribadi</title>
   <!-- Favicon -->
@@ -54,11 +54,16 @@
           <article class="panel target-panel" id="settings"><p class="eyebrow">04 / niat</p><h2>Ruang untuk simpan</h2><p class="muted">Tetapkan angka asas supaya baki anda ada arah.</p><div class="field-grid"><label>Pendapatan bulanan<input id="income-input" type="number" min="0" step="1"></label><label>Sasaran simpanan<input id="savings-target" type="number" min="0" step="1"></label></div><div class="target-callout"><span id="target-percent">36%</span><p>daripada baki semasa<br>disisihkan</p></div></article>
         </aside>
       </section>
+      <section class="panel timeline-section" id="timeline-section">
+        <div class="panel-head"><div><p class="eyebrow">05 / jadual</p><h2>Timeline bayaran</h2></div><span class="tl-month-label" id="tl-month-label"></span></div>
+        <p class="muted tl-desc">Semua komitmen bulanan tersusun mengikut tarikh — lihat mana yang akan tiba dan mana yang masih ada masa.</p>
+        <div class="timeline-wrap" id="timeline-list"></div>
+      </section>
       <section class="assumption-note"><span class="note-icon">i</span><p><b>Nota andaian.</b> Kos petrol belum dimasukkan sebagai komitmen bulanan. Masukkan harga petrol dan rutin perjalanan untuk melihat anggaran; tambahkannya ke senarai jika mahu ia menolak baki secara automatik. Angka asal ialah titik mula, bukan angka muktamad.</p></section>
     </main>
     <footer><span>RUANG BAJET / AMZAR</span><span>Direka untuk semakan bulanan</span></footer>
   </div>
-  <div class="modal-backdrop" id="modal"><form class="modal" id="expense-form"><button type="button" class="close-btn" id="close-modal">×</button><p class="eyebrow">Tambah komitmen</p><h2 id="modal-title">Item baru</h2><label>Nama item<input id="expense-name" required placeholder="Contoh: Makan"></label><label>Kategori<select id="expense-category"><option>Rumah</option><option>BNPL</option><option>Internet</option><option>AI</option><option>Pengangkutan</option><option>Lain-lain</option></select></label><label>Jumlah / bulan (RM)<input id="expense-amount" type="number" min="0" step="0.01" required></label><div class="modal-actions"><button type="button" class="secondary-btn" id="cancel-modal">Batal</button><button class="add-btn" type="submit">Simpan item</button></div></form></div>
+  <div class="modal-backdrop" id="modal"><form class="modal" id="expense-form"><button type="button" class="close-btn" id="close-modal">×</button><p class="eyebrow">Tambah komitmen</p><h2 id="modal-title">Item baru</h2><label>Nama item<input id="expense-name" required placeholder="Contoh: Makan"></label><label>Kategori<select id="expense-category"><option>Rumah</option><option>BNPL</option><option>Internet</option><option>AI</option><option>Pengangkutan</option><option>Lain-lain</option></select></label><label>Jumlah / bulan (RM)<input id="expense-amount" type="number" min="0" step="0.01" required></label><label>Hari bayar (1–31)<input id="expense-dueday" type="number" min="1" max="31" step="1" placeholder="cth: 15"></label><div class="modal-actions"><button type="button" class="secondary-btn" id="cancel-modal">Batal</button><button class="add-btn" type="submit">Simpan item</button></div></form></div>
   <script type="module" src="app.js"></script>
 </body>
 </html>

@@ -54,8 +54,31 @@
           <article class="panel target-panel" id="settings"><p class="eyebrow">04 / niat</p><h2>Ruang untuk simpan</h2><p class="muted">Tetapkan angka asas supaya baki anda ada arah.</p><div class="field-grid"><label>Pendapatan bulanan<input id="income-input" type="number" min="0" step="1"></label><label>Sasaran simpanan<input id="savings-target" type="number" min="0" step="1"></label></div><div class="target-callout"><span id="target-percent">36%</span><p>daripada baki semasa<br>disisihkan</p></div></article>
         </aside>
       </section>
+      <section class="panel health-section" id="health-section">
+        <div class="panel-head"><div><p class="eyebrow">05 / kesihatan</p><h2>Skor kewangan</h2></div><span id="health-grade-badge" class="health-grade A">A</span></div>
+        <div class="health-layout">
+          <div>
+            <div class="health-gauge">
+              <svg viewBox="0 0 180 100" width="180" height="100">
+                <path d="M10,100 A80,80 0 0,1 170,100" fill="none" stroke="#ffffff14" stroke-width="10" stroke-linecap="round"/>
+                <path id="health-arc" d="M10,100 A80,80 0 0,1 170,100" fill="none" stroke="#9baa8a" stroke-width="10" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="251.2"/>
+              </svg>
+              <div class="health-score-wrap">
+                <span class="health-score" id="health-score">0</span>
+                <span class="health-score-label">/ 100</span>
+              </div>
+            </div>
+          </div>
+          <div class="health-bars">
+            <div class="h-bar-row"><div class="h-bar-label"><span>Nisbah simpanan</span><span id="hb-savings-val">0%</span></div><div class="h-bar-track"><div class="h-bar-fill sage" id="hb-savings" style="width:0%"></div></div></div>
+            <div class="h-bar-row"><div class="h-bar-label"><span>Beban komitmen</span><span id="hb-burden-val">0%</span></div><div class="h-bar-track"><div class="h-bar-fill terra" id="hb-burden" style="width:0%"></div></div></div>
+            <div class="h-bar-row"><div class="h-bar-label"><span>Bayaran settle</span><span id="hb-paid-val">0%</span></div><div class="h-bar-track"><div class="h-bar-fill amber" id="hb-paid" style="width:0%"></div></div></div>
+          </div>
+          <div class="health-tips" id="health-tips"></div>
+        </div>
+      </section>
       <section class="panel timeline-section" id="timeline-section">
-        <div class="panel-head"><div><p class="eyebrow">05 / jadual</p><h2>Timeline bayaran</h2></div><span class="tl-month-label" id="tl-month-label"></span></div>
+        <div class="panel-head"><div><p class="eyebrow">06 / jadual</p><h2>Timeline bayaran</h2></div><span class="tl-month-label" id="tl-month-label"></span></div>
         <p class="muted tl-desc">Semua komitmen bulanan tersusun mengikut tarikh — lihat mana yang akan tiba dan mana yang masih ada masa.</p>
         <div class="timeline-wrap" id="timeline-list"></div>
       </section>

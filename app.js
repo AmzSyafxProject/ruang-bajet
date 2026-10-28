@@ -10,7 +10,38 @@ function render(){let total=data.expenses.reduce((s,e)=>s+Number(e[2]),0),bal=da
   $('income-input').value=data.income;$('savings-target').value=data.target;['distance','days','efficiency','fuel-price'].forEach((id,i)=>$(id).value=Object.values(data.commute)[i]);$('round-trip').checked=data.commute.roundTrip;let km=data.commute.distance*(data.commute.roundTrip?2:1),daily=km/data.commute.efficiency*data.commute.fuelPrice,totalFuel=daily*data.commute.days;$('commute-daily').textContent=money(daily);$('commute-total').textContent=money(totalFuel);
   const cats=['Semua',...new Set(data.expenses.map(e=>e[1]))];$('category-summary').innerHTML=cats.map(c=>`<button class="category-pill ${c===filter?'active':''}" data-cat="${c}">${c} ${c==='Semua'?'':money(data.expenses.filter(e=>e[1]===c).reduce((s,e)=>s+Number(e[2]),0))}</button>`).join('');$('category-summary').querySelectorAll('button').forEach(b=>b.onclick=()=>{filter=b.dataset.cat;render()});
   const paidCount=data.expenses.filter(e=>e[3]).length;$('paid-count').textContent=`${paidCount}/${data.expenses.length} dah bayar`;
-  $('expense-list').innerHTML=data.expenses.map((e,i)=>filter==='Semua'||e[1]===filter?`<div class="expense-row${e[3]?' paid':''}"><button class="tick-btn" data-tick="${i}" title="${e[3]?'Tandakan belum bayar':'Tandakan dah bayar'}">${e[3]?'✓':''}</button><span class="expense-name">${e[0]}</span><span class="expense-category">${e[1]}</span><span class="expense-amount">${money(e[2])}</span><span class="row-actions"><button title="Edit" data-edit="${i}">✎</button><button title="Padam" data-delete="${i}">×</button></span></div>`:'').join('');document.querySelectorAll('[data-tick]').forEach(b=>b.onclick=()=>{data.expenses[+b.dataset.tick][3]=!data.expenses[+b.dataset.tick][3];save();render()});document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openModal(+b.dataset.edit));document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>{data.expenses.splice(+b.dataset.delete,1);save();render()});renderTimeline();}
+  $('expense-list').innerHTML=data.expenses.map((e,i)=>filter==='Semua'||e[1]===filter?`<div class="expense-row${e[3]?' paid':''}"><button class="tick-btn" data-tick="${i}" title="${e[3]?'Tandakan belum bayar':'Tandakan dah bayar'}">${e[3]?'✓':''}</button><span class="expense-name">${e[0]}</span><span class="expense-category">${e[1]}</span><span class="expense-amount">${money(e[2])}</span><span class="row-actions"><button title="Edit" data-edit="${i}">✎</button><button title="Padam" data-delete="${i}">×</button></span></div>`:'').join('');document.querySelectorAll('[data-tick]').forEach(b=>b.onclick=()=>{data.expenses[+b.dataset.tick][3]=!data.expenses[+b.dataset.tick][3];save();render()});document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openModal(+b.dataset.edit));document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>{data.expenses.splice(+b.dataset.delete,1);save();render()});renderHealth();renderTimeline();}
+function renderHealth(){
+  const total=data.expenses.reduce((s,e)=>s+Number(e[2]),0);
+  const bal=data.income-total;
+  const savingsRatio=data.income>0?Math.max(0,bal/data.income):0;
+  const burdenRatio=data.income>0?Math.min(1,total/data.income):0;
+  const paidRatio=data.expenses.length>0?data.expenses.filter(e=>e[3]).length/data.expenses.length:0;
+  // Score: savings 40pts, burden 40pts (inverted), paid 20pts
+  const s1=Math.round(savingsRatio*40);
+  const s2=Math.round((1-burdenRatio)*40);
+  const s3=Math.round(paidRatio*20);
+  const score=Math.min(100,s1+s2+s3);
+  const grade=score>=80?'A':score>=60?'B':score>=40?'C':'D';
+  const gradeColor=score>=80?'#9baa8a':score>=60?'#c8b86e':score>=40?'#bd7357':'#884433';
+  // Arc: circumference of r=80 semicircle = π*80 ≈ 251.2
+  const circ=251.2;const offset=circ-(score/100*circ);
+  const arc=$('health-arc');if(arc){arc.style.strokeDashoffset=offset;arc.style.stroke=gradeColor}
+  const scoreEl=$('health-score');if(scoreEl)scoreEl.textContent=score;
+  const badge=$('health-grade-badge');if(badge){badge.textContent=grade;badge.className=`health-grade ${grade}`}
+  const setStat=(id,valId,pct,cap=100)=>{const el=$(id);const vel=$(valId);if(el)el.style.width=`${Math.min(100,pct*100/cap)}%`;if(vel)vel.textContent=`${Math.round(pct*100)}%`};
+  setStat('hb-savings','hb-savings-val',savingsRatio);
+  setStat('hb-burden','hb-burden-val',burdenRatio);
+  setStat('hb-paid','hb-paid-val',paidRatio);
+  const tips=[];
+  if(savingsRatio<0.1)tips.push({icon:'💸',title:'Simpanan rendah',msg:`Baki <b>${Math.round(savingsRatio*100)}%</b> daripada pendapatan. Cuba kurang satu komitmen.`});
+  else if(savingsRatio>=0.2)tips.push({icon:'✦',title:'Simpanan sihat',msg:`<b>${Math.round(savingsRatio*100)}%</b> baki tersedia — anda dalam landasan yang baik.`});
+  if(burdenRatio>0.7)tips.push({icon:'⚠',title:'Komitmen tinggi',msg:`<b>${Math.round(burdenRatio*100)}%</b> pendapatan terikat. Cadangan: di bawah 60%.`});
+  if(paidRatio<0.5&&data.expenses.length>0)tips.push({icon:'○',title:'Bayaran belum settle',msg:`<b>${data.expenses.filter(e=>!e[3]).length}</b> item belum ditanda bayar bulan ini.`});
+  else if(paidRatio===1)tips.push({icon:'✓',title:'Semua settle',msg:`Semua <b>${data.expenses.length}</b> komitmen bulan ini dah diselesaikan.`});
+  if(tips.length===0)tips.push({icon:'◆',title:'Status kukuh',msg:`Skor <b>${score}/100</b> — kewangan dalam keadaan terkawal.`});
+  const tipsEl=$('health-tips');if(tipsEl)tipsEl.innerHTML=tips.slice(0,3).map(t=>`<div class="health-tip"><span class="tip-icon">${t.icon}</span><p><b>${t.title}</b> — ${t.msg}</p></div>`).join('');
+}
 function renderTimeline(){
   const today=new Date();const todayDay=today.getDate();const monthName=today.toLocaleString('ms-MY',{month:'long'});const year=today.getFullYear();
   const withDate=data.expenses.filter(e=>e[4]>0).sort((a,b)=>a[4]-b[4]);

@@ -5,7 +5,23 @@ import { exportBackup, parseBackup, downloadText } from './js/backup.js';
 import { fmt, toSen, senToInput, esc, fmtDateTime, debounce, fromLegacy, APP_VERSION } from './js/utils.js';
 
 const $ = id => document.getElementById(id);
-const ui = { filter: 'Semua', query: '', sort: 'added', editing: null };
+const ui = { filter: 'Semua', query: '', sort: 'added', editing: null, seen: null, pulse: null, replay: false };
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+// Nombor "naik" ke nilai baharu (kosong -> terus set pada render pertama).
+function tween(el, to, f = fmt) {
+  cancelAnimationFrame(el._raf);
+  const from = ui.replay ? 0 : (el._v ?? to);
+  el._v = to;
+  if (from === to || reduceMotion.matches) { el.textContent = f(to); return; }
+  const t0 = performance.now(), dur = 650;
+  const step = now => {
+    const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+    el.textContent = p < 1 ? f(from + (to - from) * e) : f(to);
+    if (p < 1) el._raf = requestAnimationFrame(step);
+  };
+  el._raf = requestAnimationFrame(step);
+}
 const sum = list => list.reduce((s, e) => s + e.amountSen, 0);
 const setVal = (el, v) => { if (document.activeElement !== el) el.value = v; };
 const commute = () => ({ ...store.DEFAULTS.commute, ...(store.getSetting('commute') || {}) });
@@ -80,17 +96,17 @@ function render() {
   const unpaid = list.filter(e => !e.paid), paidCount = list.length - unpaid.length;
   const pct = income > 0 ? bal / income * 100 : 0;
 
-  $('balance').textContent = fmt(bal);
-  $('income-display').textContent = fmt(income);
-  $('expenses-display').textContent = fmt(total);
-  $('target-display').textContent = fmt(target);
+  tween($('balance'), bal);
+  tween($('income-display'), income);
+  tween($('expenses-display'), total);
+  tween($('target-display'), target);
   $('balance-note').textContent = `${pct.toFixed(1)}% daripada pendapatan`;
   $('balance-bar').style.width = `${Math.max(0, Math.min(100, pct))}%`;
   $('target-note').textContent = `${fmt(bal - target)} selepas simpanan`;
   $('expense-count').textContent = `${list.length} item aktif`;
   $('target-percent').textContent = `${bal > 0 ? Math.round(target / bal * 100) : 0}%`;
   $('paid-count').textContent = list.length ? `${paidCount}/${list.length} dah bayar` : ' ';
-  $('unpaid-display').textContent = fmt(sum(unpaid));
+  tween($('unpaid-display'), sum(unpaid));
   $('unpaid-count').textContent = `${unpaid.length} item belum bayar`;
 
   const c = commute();
@@ -127,11 +143,13 @@ function renderExpenses(list, { total, bal, unpaid }) {
   };
   if (sorters[ui.sort]) rows = [...rows].sort(sorters[ui.sort]);
 
-  $('expense-list').innerHTML = rows.map(e => `<div class="expense-row${e.paid ? ' paid' : ''}">
+  const seen = ui.seen;
+  $('expense-list').innerHTML = rows.map((e, i) => `<div class="expense-row${e.paid ? ' paid' : ''}${seen && !seen.has(e.id) ? ' row-new' : ''}${ui.pulse === e.id ? ' pulse' : ''}" style="--i:${Math.min(i, 12)}">
     <button type="button" class="tick-btn" data-act="tick" data-id="${e.id}" aria-pressed="${e.paid}" aria-label="${e.paid ? 'Tandakan belum bayar' : 'Tandakan dah bayar'}: ${esc(e.name)}">${e.paid ? '✓' : ''}</button>
     <span class="expense-name">${esc(e.name)}</span><span class="expense-category">${esc(e.category)}</span><span class="expense-amount">${fmt(e.amountSen)}</span>
     <span class="row-actions"><button type="button" data-act="edit" data-id="${e.id}" aria-label="Edit ${esc(e.name)}">✎</button><button type="button" data-act="delete" data-id="${e.id}" aria-label="Padam ${esc(e.name)}">×</button></span></div>`).join('');
 
+  ui.seen = new Set(list.map(e => e.id));
   const empty = $('expense-empty');
   empty.hidden = rows.length > 0;
   document.querySelector('.expense-table').hidden = rows.length === 0;
@@ -162,7 +180,7 @@ function renderHealth(list, income, total, bal) {
   const arc = $('health-arc');
   arc.style.strokeDashoffset = 251.2 - (hasData ? score : 0) / 100 * 251.2;
   arc.style.stroke = color;
-  $('health-score').textContent = hasData ? score : '–';
+  if (hasData) tween($('health-score'), score, v => String(Math.round(v))); else { $('health-score')._v = 0; $('health-score').textContent = '–'; }
   const badge = $('health-grade-badge');
   badge.textContent = hasData ? grade : '–';
   badge.className = `health-grade ${hasData ? grade : 'none'}`;
@@ -187,11 +205,11 @@ function renderTimeline(list) {
   const mon = today.toLocaleString('ms-MY', { month: 'long' }).slice(0, 3);
   const dated = list.filter(e => e.dueDay).sort((a, b) => a.dueDay - b.dueDay);
   const undated = list.filter(e => !e.dueDay);
-  const rows = dated.map(e => {
+  const rows = dated.map((e, idx) => {
     const diff = e.dueDay - day;
     const status = e.paid ? 'paid' : diff < 0 ? 'overdue' : diff <= 3 ? 'soon' : diff <= 7 ? 'week' : 'later';
     const badge = e.paid ? '✓ Dah bayar' : diff < 0 ? `${-diff}h lps` : diff === 0 ? 'Hari ini' : diff === 1 ? 'Esok' : `${diff}h lagi`;
-    return `<div class="tl-item tl-${status}"><div class="tl-day"><span class="tl-day-num">${e.dueDay}</span><span class="tl-month">${esc(mon)}</span></div><div class="tl-connector"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-content"><span class="tl-name">${esc(e.name)}</span><span class="tl-cat">${esc(e.category)}</span><span class="tl-amt">${fmt(e.amountSen)}</span></div><span class="tl-badge tl-badge-${status}">${badge}</span></div>`;
+    return `<div class="tl-item tl-${status}" style="--i:${Math.min(idx, 12)}"><div class="tl-day"><span class="tl-day-num">${e.dueDay}</span><span class="tl-month">${esc(mon)}</span></div><div class="tl-connector"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-content"><span class="tl-name">${esc(e.name)}</span><span class="tl-cat">${esc(e.category)}</span><span class="tl-amt">${fmt(e.amountSen)}</span></div><span class="tl-badge tl-badge-${status}">${badge}</span></div>`;
   }).join('');
   const rest = undated.length ? `<div class="tl-nodate"><span class="tl-nodate-label">Tiada tarikh</span>${undated.map(e => `<div class="tl-nodate-item"><span>${esc(e.name)}</span><span class="tl-cat">${esc(e.category)}</span><span class="tl-amt">${fmt(e.amountSen)}</span></div>`).join('')}</div>` : '';
   $('timeline-list').innerHTML = rows + rest || `<div class="empty-state"><p class="empty-title">Tiada jadual lagi</p><p>Tambah komitmen dengan hari bayar untuk melihatnya di sini.</p></div>`;
@@ -283,7 +301,7 @@ $('expense-list').onclick = e => {
   const b = e.target.closest('button[data-act]'); if (!b) return;
   const id = b.dataset.id, rec = store.state.expenses.get(id);
   if (!rec) return;
-  if (b.dataset.act === 'tick') guard(store.updateExpense(id, { paid: !rec.paid }));
+  if (b.dataset.act === 'tick') { ui.pulse = id; setTimeout(() => { if (ui.pulse === id) ui.pulse = null; }, 900); guard(store.updateExpense(id, { paid: !rec.paid })); }
   if (b.dataset.act === 'edit') openModal(id);
   if (b.dataset.act === 'delete') {
     store.deleteExpense(id).then(() => toast(`"${rec.name}" dipadam`, { action: { label: 'Undur', fn: () => guard(store.restoreExpense(id)) } })).catch(fail);
@@ -353,16 +371,58 @@ const flushAll = () => Object.values(savers).forEach(s => { if (s.dirty) s.flush
 addEventListener('pagehide', flushAll);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushAll(); });
 
-// ---------- Navigasi ----------
-document.querySelectorAll('[data-scroll]').forEach(b => b.onclick = () => $(b.dataset.scroll).scrollIntoView());
-const navLinks = [...document.querySelectorAll('#section-nav a')];
-if ('IntersectionObserver' in window) {
-  const io = new IntersectionObserver(entries => entries.forEach(en => {
-    if (!en.isIntersecting) return;
-    navLinks.forEach(a => a.toggleAttribute('aria-current', a.getAttribute('href') === `#${en.target.id}`));
-  }), { rootMargin: '-45% 0px -50% 0px' });
-  navLinks.forEach(a => { const t = document.querySelector(a.getAttribute('href')); if (t) io.observe(t); });
+// ---------- Navigasi tab (setiap bahagian satu halaman) ----------
+const TABS = ['utama', 'komitmen', 'jadual', 'rutin', 'data'];
+const nav = $('section-nav'), navInd = nav.querySelector('.nav-ind');
+const navLinks = [...nav.querySelectorAll('a[data-tab]')];
+const views = [...document.querySelectorAll('.view')];
+let curTab = null;
+function moveIndicator() {
+  const a = navLinks.find(l => l.dataset.tab === curTab);
+  if (!a) return;
+  navInd.style.setProperty('--x', `${a.offsetLeft}px`);
+  navInd.style.setProperty('--w', `${a.offsetWidth}px`);
+  if (!navInd.classList.contains('ready')) requestAnimationFrame(() => navInd.classList.add('ready'));
 }
+// Ulang animasi skor/baki bila kembali ke halaman Utama.
+function replayHome() {
+  const bars = ['health-arc', 'hb-savings', 'hb-burden', 'hb-paid', 'balance-bar'].map($);
+  bars.forEach(el => { el.style.transition = 'none'; });
+  $('health-arc').style.strokeDashoffset = 251.2;
+  bars.slice(1).forEach(el => { el.style.width = '0%'; });
+  void $('health-arc').getBoundingClientRect();
+  requestAnimationFrame(() => {
+    bars.forEach(el => { el.style.transition = ''; });
+    if (curTab !== 'utama') return;
+    ui.replay = true; render(); ui.replay = false;
+  });
+}
+function showTab(tab) {
+  if (!TABS.includes(tab)) tab = 'utama';
+  if (tab === curTab) return;
+  const dir = curTab ? (TABS.indexOf(tab) > TABS.indexOf(curTab) ? 'fwd' : 'back') : '';
+  curTab = tab;
+  views.forEach(v => {
+    const on = v.dataset.tab === tab;
+    v.hidden = !on;
+    v.classList.remove('entering', 'dir-fwd', 'dir-back');
+    clearTimeout(v._t);
+    if (on) {
+      void v.offsetWidth;
+      v.classList.add('entering');
+      if (dir) v.classList.add(`dir-${dir}`);
+      v._t = setTimeout(() => v.classList.remove('entering'), 1500);
+    }
+  });
+  navLinks.forEach(a => (a.dataset.tab === tab ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current')));
+  moveIndicator();
+  window.scrollTo({ top: 0, behavior: 'instant' });
+  if (tab === 'utama' && dir && store.state.ready) replayHome();
+}
+document.querySelectorAll('[data-go]').forEach(b => { b.onclick = () => { location.hash = b.dataset.go; }; });
+addEventListener('hashchange', () => showTab(location.hash.slice(1)));
+addEventListener('resize', moveIndicator);
+if (document.fonts?.ready) document.fonts.ready.then(moveIndicator);
 
 // ---------- Tarik untuk segar semula ----------
 (() => {
@@ -415,7 +475,7 @@ function showBanner() {
   const st = store.state, b = $('banner');
   const msgs = [];
   if (!st.storageOk) msgs.push(`<b>Storan peranti tidak tersedia.</b> Perubahan TIDAK akan disimpan (${esc(st.fatal?.message || 'ralat storan')}). Tutup mod Private/Incognito atau guna pelayar lain.`);
-  if (st.legacyCorrupt) msgs.push('<b>Data lama tidak dapat dibaca.</b> Ia tidak dipadam — salinan asal ada di bahagian <a href="#data-section">Data</a> untuk dimuat turun.');
+  if (st.legacyCorrupt) msgs.push('<b>Data lama tidak dapat dibaca.</b> Ia tidak dipadam — salinan asal ada di bahagian <a href="#data">Data</a> untuk dimuat turun.');
   b.hidden = !msgs.length;
   b.innerHTML = msgs.join('<br>');
 }
@@ -423,7 +483,10 @@ function showBanner() {
 store.init().then(() => {
   document.body.classList.remove('is-loading');
   showBanner();
+  showTab(location.hash.slice(1));
   render();
+  setTimeout(() => $('splash')?.classList.add('hide'), 250);
+  setTimeout(() => $('splash')?.remove(), 900);
   if (store.state.storageOk) sync.start();
 });
 

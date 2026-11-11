@@ -1,8 +1,8 @@
 // Service worker ringkas: rangkaian dahulu, cache sebagai sandaran luar talian.
 // Tidak menyimpan data pengguna — hanya fail aplikasi (HTML/CSS/JS/ikon).
-const CACHE = 'ruang-bajet-shell-v2';
+const CACHE = 'ruang-bajet-shell-v3';
 const SHELL = ['./', 'index.html', 'styles.css', 'app.js', 'js/utils.js', 'js/db.js', 'js/store.js', 'js/backup.js', 'js/sync.js',
-  'manifest.json', 'icon-192.png', 'apple-touch-icon.png'];
+  'manifest.json', 'icon-192.png', 'apple-touch-icon.png', 'logo.svg'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));

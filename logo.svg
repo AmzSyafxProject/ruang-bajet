@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Ruang Bajet">
+  <rect width="512" height="512" rx="116" fill="#292b28"/>
+  <g transform="translate(-18 0)">
+    <rect x="150" y="116" width="58" height="280" fill="#f3efe7"/>
+    <path d="M179 145H292a77 77 0 0 1 0 154H179" fill="none" stroke="#f3efe7" stroke-width="58"/>
+    <polygon points="250,328 316,328 392,396 326,396" fill="#bd7357"/>
+    <circle cx="262" cy="222" r="25" fill="#9baa8a"/>
+  </g>
+</svg>

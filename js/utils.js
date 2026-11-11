@@ -1,5 +1,6 @@
 // Utiliti kecil yang dikongsi semua modul.
-export const APP_VERSION = '2.0.0';
+import { t, moneyFmt, fmtDateTimeL } from './i18n.js';
+export const APP_VERSION = '3.0.0';
 export const SCHEMA_VERSION = 2;
 
 // Wang disimpan sebagai integer sen supaya tiada ralat titik apung.
@@ -7,8 +8,8 @@ export const toSen = v => {
   const n = typeof v === 'number' ? v : parseFloat(String(v ?? '').replace(',', '.'));
   return Number.isFinite(n) ? Math.round(n * 100) : 0;
 };
-const rm = new Intl.NumberFormat('ms-MY', { style: 'currency', currency: 'MYR' });
-export const fmt = sen => rm.format((Number(sen) || 0) / 100);
+let rm = null, rmLang = '';
+export const fmt = sen => { const l = document.documentElement.lang; if (!rm || rmLang !== l) { rm = moneyFmt(); rmLang = l; } return rm.format((Number(sen) || 0) / 100); };
 export const senToInput = sen => (sen ? String(sen / 100) : '');
 
 export const now = () => new Date().toISOString();
@@ -21,13 +22,7 @@ export const uid = () =>
 const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 export const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ESC[c]);
 
-export const fmtDateTime = iso => {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime())
-    ? '—'
-    : d.toLocaleString('ms-MY', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-};
+export const fmtDateTime = fmtDateTimeL;
 
 export const debounce = (fn, ms) => {
   let t;
@@ -36,8 +31,8 @@ export const debounce = (fn, ms) => {
   return d;
 };
 
-export const withTimeout = (p, ms, label = 'Operasi') =>
-  Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(`${label} tamat masa`)), ms))]);
+export const withTimeout = (p, ms, label = 'Operation') =>
+  Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(t('err.timeout', { op: label }))), ms))]);
 
 // Sahkan & normalkan satu rekod komitmen. Pulangkan null jika tak sah.
 export function normalizeExpense(r) {
@@ -61,7 +56,7 @@ export function normalizeExpense(r) {
 
 // Tukar format lama (v1: {income, expenses:[[nama,kategori,jumlah,paid,hari]], commute, target}) ke skema v2.
 export function fromLegacy(obj) {
-  if (!obj || typeof obj !== 'object') throw new Error('Format data lama tidak dikenali');
+  if (!obj || typeof obj !== 'object') throw new Error(t('err.legacyFormat'));
   const rows = Array.isArray(obj.expenses) ? obj.expenses : Object.values(obj.expenses || {});
   const base = Date.now();
   const expenses = rows.filter(Boolean).map((e, i) => {
@@ -72,7 +67,7 @@ export function fromLegacy(obj) {
       dueDay: e[4] >= 1 && e[4] <= 31 ? e[4] : null, createdAt: ts, updatedAt: ts,
     });
   });
-  if (expenses.some(e => !e)) throw new Error('Ada rekod lama yang tidak sah');
+  if (expenses.some(e => !e)) throw new Error(t('err.legacyRecord'));
   const c = obj.commute || {};
   const ts = now();
   const settings = [

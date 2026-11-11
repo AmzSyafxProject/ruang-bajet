@@ -1,3 +1,4 @@
+import { t } from './i18n.js';
 // Lapisan IndexedDB. Setiap tulisan hanya dianggap berjaya selepas transaksi `oncomplete`.
 const NAME = 'ruang-bajet';
 const VERSION = 1; // naikkan nombor ini + tambah blok `if (old < n)` untuk perubahan skema akan datang
@@ -7,7 +8,7 @@ let dbPromise = null;
 export function openDb() {
   if (dbPromise) return dbPromise;
   dbPromise = new Promise((resolve, reject) => {
-    if (!('indexedDB' in globalThis)) return reject(new Error('IndexedDB tidak disokong pelayar ini'));
+    if (!('indexedDB' in globalThis)) return reject(new Error(t('err.noIdb')));
     let req;
     try { req = indexedDB.open(NAME, VERSION); } catch (e) { return reject(e); }
     req.onupgradeneeded = e => {
@@ -25,8 +26,8 @@ export function openDb() {
       db.onversionchange = () => { db.close(); dbPromise = null; };
       resolve(db);
     };
-    req.onerror = () => reject(req.error || new Error('Gagal membuka pangkalan data'));
-    req.onblocked = () => reject(new Error('Pangkalan data disekat oleh tab lain'));
+    req.onerror = () => reject(req.error || new Error(t('err.dbOpen')));
+    req.onblocked = () => reject(new Error(t('err.dbBlocked')));
   });
   dbPromise.catch(() => { dbPromise = null; });
   return dbPromise;
@@ -42,8 +43,8 @@ export async function tx(stores, mode, fn) {
       t = db.transaction(names, mode, mode === 'readwrite' ? { durability: 'strict' } : undefined);
     } catch (e) { return reject(e); }
     t.oncomplete = () => resolve();
-    t.onerror = () => reject(t.error || new Error('Ralat transaksi'));
-    t.onabort = () => reject(t.error || new Error('Transaksi dibatalkan'));
+    t.onerror = () => reject(t.error || new Error(t('err.txError')));
+    t.onabort = () => reject(t.error || new Error(t('err.txAbort')));
     try {
       fn(Object.fromEntries(names.map(n => [n, t.objectStore(n)])));
     } catch (e) {

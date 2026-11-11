@@ -1,3 +1,4 @@
+import { t } from './i18n.js';
 // Perkhidmatan data: satu-satunya tempat yang membaca/menulis rekod.
 // UI -> store (memori) -> IndexedDB (utama) -> outbox -> sync.js (Firebase, pilihan).
 import { tx, all, openDb } from './db.js';
@@ -164,15 +165,15 @@ function commit(build) {
 export function addExpense(fields) {
   const ts = now();
   const rec = normalizeExpense({ ...fields, id: uid(), paid: false, createdAt: ts, updatedAt: ts });
-  if (!rec) return Promise.reject(new Error('Maklumat item tidak sah'));
+  if (!rec) return Promise.reject(new Error(t('err.invalidItem')));
   return commit(s => { putExp(s, rec); return () => { memExp(rec); return rec; }; });
 }
 export function updateExpense(id, patch) {
   return commit(s => {
     const cur = state.expenses.get(id);
-    if (!cur) throw new Error('Rekod tidak ditemui');
+    if (!cur) throw new Error(t('err.notFound'));
     const rec = normalizeExpense({ ...cur, ...patch, id, updatedAt: after(cur.updatedAt) });
-    if (!rec) throw new Error('Maklumat item tidak sah');
+    if (!rec) throw new Error(t('err.invalidItem'));
     putExp(s, rec);
     return () => { memExp(rec); return rec; };
   });
@@ -193,6 +194,8 @@ async function setLocalMeta(key, value) {
   state.settings.set(key, rec);
   emit('change');
 }
+// Salinan pemulihan manual (data semasa disimpan sebagai snapshot tanpa mengubah rekod).
+export const createSnapshot = () => commit(s => { s.snapshots.add({ createdAt: now(), reason: 'manual', data: exportData() }); return () => {}; });
 export const markBackup = () => setLocalMeta('_lastBackupAt', now());
 
 // Ganti SEMUA data (import-ganti / pulih salinan / set semula). Salinan semasa disimpan dahulu.
@@ -251,7 +254,7 @@ export async function listSnapshots() {
 export async function getSnapshot(id) { return (await all('snapshots')).find(r => r.id === id) || null; }
 export async function restoreSnapshot(id) {
   const snap = await getSnapshot(id);
-  if (!snap) throw new Error('Salinan tidak ditemui');
+  if (!snap) throw new Error(t('err.snapNotFound'));
   if (snap.partial) { // salinan konflik: pulihkan rekod terlibat sahaja
     return commit(s => {
       const recs = snap.data.expenses.map(e => ({ ...e, updatedAt: after(state.expenses.get(e.id)?.updatedAt) }));

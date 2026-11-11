@@ -60,3 +60,14 @@ Jangan guna `".read": true` / `".write": true`.
 | Paparan lama selepas deploy | Tutup & buka semula app (service worker ambil versi baharu bila dalam talian). |
 
 Versi sebelum naik taraf ditanda dengan git tag `pre-v2-audit`.
+
+
+## v3.0 — UI/UX redesign (AppShell, tema, bahasa)
+
+- **AppShell**: `<header>` (sticky) + `<main>` + `<nav id="app-nav">` sebagai anak terus `<body>`. Nav `position:fixed` di bawah (<1024px) atau sidebar tetap (≥1024px); tidak berada dalam elemen sticky/bertransform. Padding bawah + `env(safe-area-inset-bottom)` dikhaskan; nav disorok semasa papan kekunci mobile terbuka (`visualViewport`).
+- **Tema**: Cerah / Gelap / Ikut sistem (`localStorage rb-theme`, dikenakan sebelum cat pertama oleh skrip kecil di `<head>`).
+- **Bahasa**: `locales/ms.json` + `locales/en.json`, `js/i18n.js` (`t()`, `data-i18n`). Lalai BM, disimpan dalam `rb-lang`. Data kewangan & nilai kategori tidak diubah — hanya paparan diterjemah.
+- **Tetapan** (`#tetapan`): penampilan, bahasa, nama paparan, storan (eksport/import/salinan pemulihan/kosongkan cache/set semula), sync, mengenai. "Kosongkan cache" hanya memadam Cache Storage + service worker, **bukan** IndexedDB.
+- **Gerakan**: token `--motion-*`/`--ease-*`; peralihan halaman 250ms (10px menegak); `prefers-reduced-motion` dihormati.
+- Zum/saiz teks tidak lagi dikunci; teks boleh dipilih (hanya butang/nav tak boleh dipilih).
+- Ujian: `qa/` (Playwright, 158 semakan: 11 lebar skrin × 6 halaman, kestabilan nav, kebocoran bahasa, tema, gerakan, ketekalan data).

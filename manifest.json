@@ -1,7 +1,7 @@
 {
   "name": "Ruang Bajet",
   "short_name": "Ruang Bajet",
-  "description": "Dashboard kewangan peribadi",
+  "description": "Dashboard kewangan peribadi / Personal finance dashboard",
   "start_url": "/ruang-bajet/",
   "display": "standalone",
   "background_color": "#292b28",

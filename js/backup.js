@@ -1,3 +1,4 @@
+import { t } from './i18n.js';
 // Eksport / import sandaran JSON.
 import { SCHEMA_VERSION, normalizeExpense, fromLegacy } from './utils.js';
 import { exportData, markBackup } from './store.js';
@@ -25,24 +26,24 @@ export function downloadText(text, name, type = 'application/json') {
 // Sahkan fail sandaran. Lontar Error dengan mesej mesra pengguna jika tak sah. Tidak menulis apa-apa.
 export function parseBackup(text) {
   let obj;
-  try { obj = JSON.parse(text); } catch { throw new Error('Fail bukan JSON yang sah.'); }
-  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) throw new Error('Struktur fail tidak dikenali.');
+  try { obj = JSON.parse(text); } catch { throw new Error(t('err.notJson')); }
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) throw new Error(t('err.badStructure'));
 
   // Format lama (v1) — tukar dahulu.
   if (obj.schemaVersion == null && obj.expenses && ('income' in obj || 'target' in obj)) {
     const conv = fromLegacy(obj);
     return { ...conv, meta: { schemaVersion: 1, exportedAt: null, appVersion: null, legacy: true } };
   }
-  if (obj.app !== 'ruang-bajet') throw new Error('Fail ini bukan sandaran Ruang Bajet.');
-  if (!Number.isInteger(obj.schemaVersion)) throw new Error('Versi skema tiada dalam fail.');
-  if (obj.schemaVersion > SCHEMA_VERSION) throw new Error(`Sandaran dari versi lebih baharu (skema ${obj.schemaVersion}). Kemas kini aplikasi dahulu.`);
-  if (!Array.isArray(obj.expenses)) throw new Error('Senarai rekod tiada dalam fail.');
+  if (obj.app !== 'ruang-bajet') throw new Error(t('err.notBackup'));
+  if (!Number.isInteger(obj.schemaVersion)) throw new Error(t('err.noSchema'));
+  if (obj.schemaVersion > SCHEMA_VERSION) throw new Error(t('err.newerSchema', { v: obj.schemaVersion }));
+  if (!Array.isArray(obj.expenses)) throw new Error(t('err.noRecords'));
 
   const expenses = obj.expenses.map(normalizeExpense);
   const bad = expenses.filter(e => !e).length;
-  if (bad) throw new Error(`${bad} rekod dalam fail tidak sah — import dibatalkan supaya tiada data rosak masuk.`);
+  if (bad) throw new Error(t('err.badRecords', { n: bad }));
   const ids = new Set(expenses.map(e => e.id));
-  if (ids.size !== expenses.length) throw new Error('Fail mengandungi ID rekod berulang.');
+  if (ids.size !== expenses.length) throw new Error(t('err.dupIds'));
 
   const settings = (Array.isArray(obj.settings) ? obj.settings : [])
     .filter(r => r && typeof r.key === 'string' && typeof r.updatedAt === 'string' && r.value !== undefined);

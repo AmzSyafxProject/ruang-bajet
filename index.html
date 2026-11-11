@@ -1,10 +1,16 @@
 <!doctype html>
-<html lang="ms">
+<html lang="ms" data-theme="light">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="theme-color" content="#292b28" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#F3F0E8" />
+  <meta name="color-scheme" content="light dark" />
   <title>Ruang Bajet — dashboard kewangan peribadi</title>
+  <script>/* tema & bahasa sebelum cat pertama — elak kerlipan */
+    try{var th=localStorage.getItem('rb-theme')||'system',h=document.documentElement;
+    h.dataset.theme=(th==='dark'||(th==='system'&&matchMedia('(prefers-color-scheme: dark)').matches))?'dark':'light';
+    h.dataset.themePref=th;h.lang=localStorage.getItem('rb-lang')==='en'?'en':'ms';}catch(e){}
+  </script>
   <link rel="icon" type="image/svg+xml" href="logo.svg">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -13,7 +19,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Ruang Bajet">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,140 +28,237 @@
 </head>
 <body class="is-loading">
   <div id="splash" aria-hidden="true"><img src="logo.svg" alt="" width="84" height="84"></div>
-  <a class="skip-link" href="#main">Terus ke kandungan</a>
+  <a class="skip-link" href="#main" data-i18n="meta.skip">Terus ke kandungan</a>
   <div id="ptr-indicator" aria-hidden="true"><span class="ptr-arrow">↓</span></div>
 
-  <header class="topbar" id="topbar">
-    <div class="topbar-in">
-      <a class="brand" href="#utama" aria-label="Ruang Bajet — halaman utama"><img class="brand-logo" src="logo.svg" alt="" width="38" height="38"><span class="brand-text">RUANG<b>BAJET</b></span></a>
-      <nav class="section-nav" id="section-nav" aria-label="Menu utama">
-        <span class="nav-ind" aria-hidden="true"></span>
-        <a href="#utama" data-tab="utama"><span class="nav-glyph" aria-hidden="true"><svg viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1.2"/><rect x="9" y="2" width="5" height="5" rx="1.2"/><rect x="2" y="9" width="5" height="5" rx="1.2"/><rect x="9" y="9" width="5" height="5" rx="1.2"/></svg></span><span class="nav-label">Utama</span></a>
-        <a href="#komitmen" data-tab="komitmen"><span class="nav-glyph" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M5.5 4h8M5.5 8h8M5.5 12h8"/><path d="M2.5 4h.01M2.5 8h.01M2.5 12h.01"/></svg></span><span class="nav-label">Komitmen</span></a>
-        <a href="#jadual" data-tab="jadual"><span class="nav-glyph" aria-hidden="true"><svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" rx="1.6"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3"/></svg></span><span class="nav-label">Jadual</span></a>
-        <a href="#rutin" data-tab="rutin"><span class="nav-glyph" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M2 5h12M2 11h12"/><circle cx="5.5" cy="5" r="1.8"/><circle cx="10.5" cy="11" r="1.8"/></svg></span><span class="nav-label">Rutin</span></a>
-        <a href="#data" data-tab="data"><span class="nav-glyph" aria-hidden="true"><svg viewBox="0 0 16 16"><ellipse cx="8" cy="4" rx="5.5" ry="2"/><path d="M2.5 4v8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2V4M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2"/></svg></span><span class="nav-label">Data</span></a>
-      </nav>
+  <!-- AppShell: Header + PageContainer + BottomNavigation (nav = anak terus <body>, di luar header) -->
+  <header class="appbar" id="topbar">
+    <div class="appbar-in">
+      <a class="brand" href="#utama" data-i18n-attr="aria-label:brand.home" aria-label="Ruang Bajet — halaman utama"><img class="brand-logo" src="logo.svg" alt="" width="36" height="36"><span class="brand-text">RUANG<b>BAJET</b></span></a>
       <div class="top-meta">
         <div class="status-chip" id="status-chip" data-kind="load" role="status" aria-live="polite"><span class="status-dot" aria-hidden="true"></span><span id="saved-status">Memuatkan…</span></div>
-        <button class="retry-btn" id="status-retry" type="button" hidden>Cuba lagi</button>
+        <button class="retry-btn" id="status-retry" type="button" hidden data-i18n="common.retry">Cuba lagi</button>
+        <a class="icon-btn" id="settings-link" href="#tetapan" data-i18n-attr="aria-label:nav.settings;title:nav.settings" aria-label="Tetapan"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a7.7 7.7 0 0 0 0-3l2-1.5-2-3.4-2.3.9a7.6 7.6 0 0 0-2.6-1.5L14 2.5h-4l-.5 2.5a7.6 7.6 0 0 0-2.6 1.5l-2.3-.9-2 3.4 2 1.5a7.7 7.7 0 0 0 0 3l-2 1.5 2 3.4 2.3-.9a7.6 7.6 0 0 0 2.6 1.5l.5 2.5h4l.5-2.5a7.6 7.6 0 0 0 2.6-1.5l2.3.9 2-3.4z"/></svg></a>
       </div>
     </div>
   </header>
 
   <div class="shell">
     <div class="banner" id="banner" role="alert" hidden></div>
-    <noscript><div class="banner">Ruang Bajet memerlukan JavaScript untuk memaparkan dan menyimpan data anda.</div></noscript>
+    <noscript><div class="banner" data-i18n="banner.noJs">Ruang Bajet memerlukan JavaScript untuk memaparkan dan menyimpan data anda.</div></noscript>
 
     <main id="main" tabindex="-1">
       <!-- ═══ UTAMA ═══ -->
-      <section class="view" id="view-utama" data-tab="utama" aria-label="Utama" hidden>
-        <div class="hero" id="overview">
-          <p class="eyebrow"><span id="hero-month">—</span> · personal finance</p>
-          <p class="greeting">Hai, <strong>Amzar</strong> 👋</p>
-          <h1>Ruang untuk <em>bernafas.</em></h1>
-          <p class="lede">Ke mana duit pergi — dan berapa yang masih boleh disimpan.</p>
+      <section class="view" id="view-utama" data-tab="utama" hidden>
+        <div class="hero">
+          <p class="eyebrow" id="hero-eyebrow">—</p>
+          <p class="greeting" id="greeting"></p>
+          <h1 data-i18n-html="home.title">Ruang untuk <em>bernafas.</em></h1>
+          <p class="lede" data-i18n="home.lede">Ke mana duit pergi — dan berapa yang masih boleh disimpan.</p>
         </div>
 
-        <div class="summary-grid" aria-label="Ringkasan kewangan">
-          <article class="metric metric-primary"><span class="label">Baki boleh guna</span><strong id="balance">—</strong><span class="metric-note" id="balance-note">&nbsp;</span><div class="balance-bar"><i id="balance-bar" style="width:0"></i></div></article>
-          <article class="metric"><span class="label">Pendapatan bulanan</span><strong id="income-display">—</strong><button class="text-action" type="button" data-go="rutin">Edit angka →</button></article>
-          <article class="metric"><span class="label">Jumlah komitmen</span><strong id="expenses-display">—</strong><span class="metric-note" id="expense-count">&nbsp;</span></article>
-          <article class="metric accent-card"><span class="label">Sasaran simpanan</span><strong id="target-display">—</strong><span class="metric-note" id="target-note">&nbsp;</span></article>
-          <article class="metric unpaid-card"><span class="label">Belum diselesaikan</span><strong id="unpaid-display">—</strong><span class="metric-note" id="unpaid-count">&nbsp;</span></article>
+        <article class="balance-hero" id="balance-hero">
+          <span class="label" data-i18n="home.balance">Baki boleh guna</span>
+          <strong class="balance-fig" id="balance">—</strong>
+          <span class="metric-note" id="balance-note">&nbsp;</span>
+          <div class="balance-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="balance-progress"><i id="balance-bar"></i></div>
+        </article>
+
+        <div class="summary-grid">
+          <article class="metric"><span class="label" data-i18n="home.income">Pendapatan bulanan</span><strong id="income-display">—</strong><button class="text-action" type="button" data-go="rutin" data-i18n="home.editFigures">Edit angka →</button></article>
+          <article class="metric"><span class="label" data-i18n="home.commitments">Jumlah komitmen</span><strong id="expenses-display">—</strong><span class="metric-note" id="expense-count">&nbsp;</span></article>
+          <article class="metric accent-card"><span class="label" data-i18n="home.target">Sasaran simpanan</span><strong id="target-display">—</strong><span class="metric-note" id="target-note">&nbsp;</span></article>
+          <article class="metric unpaid-card"><span class="label" data-i18n="home.unsettled">Belum diselesaikan</span><strong id="unpaid-display">—</strong><span class="metric-note" id="unpaid-count">&nbsp;</span></article>
         </div>
 
         <article class="panel health-section" id="health-section">
-          <div class="panel-head"><div><p class="eyebrow">02 / kesihatan</p><h2>Skor kewangan</h2></div><span id="health-grade-badge" class="health-grade A" aria-label="Gred">–</span></div>
+          <div class="panel-head"><div><p class="eyebrow" data-i18n="health.eyebrow">02 / kesihatan</p><h2 data-i18n="health.title">Skor kewangan</h2></div><span id="health-grade-badge" class="health-grade A" data-i18n-attr="aria-label:health.gradeAria" aria-label="Gred">–</span></div>
           <div class="health-layout">
-            <div>
-              <div class="health-gauge">
-                <svg viewBox="0 0 180 100" width="180" height="100" aria-hidden="true">
-                  <path d="M10,100 A80,80 0 0,1 170,100" fill="none" stroke="#ffffff14" stroke-width="10" stroke-linecap="round"/>
-                  <path id="health-arc" d="M10,100 A80,80 0 0,1 170,100" fill="none" stroke="#9baa8a" stroke-width="10" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="251.2"/>
-                </svg>
-                <div class="health-score-wrap"><span class="health-score" id="health-score">0</span><span class="health-score-label">/ 100</span></div>
-              </div>
+            <div class="health-gauge">
+              <svg viewBox="0 0 180 100" aria-hidden="true">
+                <path d="M10,100 A80,80 0 0,1 170,100" class="gauge-track" fill="none" stroke-width="10" stroke-linecap="round"/>
+                <path id="health-arc" d="M10,100 A80,80 0 0,1 170,100" fill="none" stroke="var(--positive)" stroke-width="10" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="251.2"/>
+              </svg>
+              <div class="health-score-wrap"><span class="health-score" id="health-score">0</span><span class="health-score-label" data-i18n="health.outOf">/ 100</span></div>
             </div>
             <div class="health-bars">
-              <div class="h-bar-row"><div class="h-bar-label"><span>Nisbah simpanan</span><span id="hb-savings-val">0%</span></div><div class="h-bar-track"><div class="h-bar-fill sage" id="hb-savings" style="width:0%"></div></div></div>
-              <div class="h-bar-row"><div class="h-bar-label"><span>Beban komitmen</span><span id="hb-burden-val">0%</span></div><div class="h-bar-track"><div class="h-bar-fill terra" id="hb-burden" style="width:0%"></div></div></div>
-              <div class="h-bar-row"><div class="h-bar-label"><span>Bayaran settle</span><span id="hb-paid-val">0%</span></div><div class="h-bar-track"><div class="h-bar-fill amber" id="hb-paid" style="width:0%"></div></div></div>
+              <div class="h-bar-row"><div class="h-bar-label"><span data-i18n="health.savings">Nisbah simpanan</span><span id="hb-savings-val">0%</span></div><div class="h-bar-track"><div class="h-bar-fill sage" id="hb-savings"></div></div></div>
+              <div class="h-bar-row"><div class="h-bar-label"><span data-i18n="health.burden">Beban komitmen</span><span id="hb-burden-val">0%</span></div><div class="h-bar-track"><div class="h-bar-fill terra" id="hb-burden"></div></div></div>
+              <div class="h-bar-row"><div class="h-bar-label"><span data-i18n="health.settled">Bayaran settle</span><span id="hb-paid-val">0%</span></div><div class="h-bar-track"><div class="h-bar-fill amber" id="hb-paid"></div></div></div>
             </div>
             <div class="health-tips" id="health-tips"></div>
           </div>
         </article>
+
+        <article class="panel" id="breakdown-section">
+          <div class="panel-head"><div><p class="eyebrow" data-i18n="breakdown.eyebrow">03 / pecahan</p><h2 data-i18n="breakdown.title">Pecahan komitmen</h2></div></div>
+          <div id="breakdown"></div>
+        </article>
+
+        <div class="two-col">
+          <article class="panel" id="upcoming-section">
+            <div class="panel-head"><div><p class="eyebrow" data-i18n="upcoming.eyebrow">05 / akan datang</p><h2 data-i18n="upcoming.title">Bayaran akan datang</h2></div></div>
+            <ul class="mini-list" id="upcoming-list"></ul>
+            <button class="text-action" type="button" data-go="jadual" data-i18n="upcoming.viewAll">Lihat jadual →</button>
+          </article>
+          <article class="panel" id="savings-section">
+            <div class="panel-head"><div><p class="eyebrow" data-i18n="savings.eyebrow">04 / simpanan</p><h2 data-i18n="savings.title">Kemajuan simpanan</h2></div></div>
+            <div id="savings-body"></div>
+          </article>
+        </div>
+
+        <article class="panel" id="recent-section">
+          <div class="panel-head"><div><p class="eyebrow" data-i18n="recent.eyebrow">06 / aktiviti</p><h2 data-i18n="recent.title">Aktiviti terkini</h2></div></div>
+          <ul class="mini-list" id="recent-list"></ul>
+          <button class="text-action" type="button" data-go="data" data-i18n="recent.viewAll">Lihat semua →</button>
+        </article>
       </section>
 
       <!-- ═══ KOMITMEN ═══ -->
-      <section class="view view-narrow" id="view-komitmen" data-tab="komitmen" aria-label="Komitmen" hidden>
+      <section class="view view-narrow" id="view-komitmen" data-tab="komitmen" hidden>
         <article class="panel expenses-panel" id="expenses-section">
-          <div class="panel-head"><div><p class="eyebrow">03 / perbelanjaan</p><h2>Komitmen bulanan</h2><span class="paid-status" id="paid-count">&nbsp;</span></div><button class="add-btn" id="add-expense" type="button">+ Tambah item</button></div>
+          <div class="panel-head"><div><p class="eyebrow" data-i18n="commit.eyebrow">03 / perbelanjaan</p><h2 data-i18n="commit.title">Komitmen bulanan</h2><span class="paid-status" id="paid-count">&nbsp;</span></div><button class="add-btn" id="add-expense" type="button" data-i18n="commit.add">+ Tambah item</button></div>
           <div class="list-tools">
-            <label class="tool-search"><span class="sr-only">Cari item</span><input id="expense-search" type="search" placeholder="Cari item…" autocomplete="off"></label>
-            <label class="tool-sort"><span class="sr-only">Susun mengikut</span>
-              <select id="expense-sort"><option value="added">Susun: asal</option><option value="due">Susun: hari bayar</option><option value="amount">Susun: jumlah tertinggi</option><option value="name">Susun: nama A–Z</option><option value="unpaid">Susun: belum bayar dulu</option></select></label>
+            <label class="tool-search"><span class="sr-only" data-i18n="commit.searchLabel">Cari item</span><input id="expense-search" type="search" data-i18n-attr="placeholder:commit.search" placeholder="Cari item…" autocomplete="off"></label>
+            <label class="tool-sort"><span class="sr-only" data-i18n="commit.sortLabel">Susun mengikut</span>
+              <select id="expense-sort"><option value="added" data-i18n="commit.sort.added">Susun: asal</option><option value="due" data-i18n="commit.sort.due">Susun: hari bayar</option><option value="amount" data-i18n="commit.sort.amount">Susun: jumlah tertinggi</option><option value="name" data-i18n="commit.sort.name">Susun: nama A–Z</option><option value="unpaid" data-i18n="commit.sort.unpaid">Susun: belum bayar dulu</option></select></label>
           </div>
           <div class="category-summary" id="category-summary"></div>
-          <div class="expense-table"><div class="table-head"><span></span><span>Item</span><span>Kategori</span><span>Jumlah</span><span></span></div><div id="expense-list"></div></div>
+          <div class="expense-table"><div class="table-head"><span></span><span data-i18n="commit.colItem">Item</span><span data-i18n="commit.colCategory">Kategori</span><span data-i18n="commit.colAmount">Jumlah</span><span></span></div><div id="expense-list"></div></div>
           <div class="empty-state" id="expense-empty" hidden></div>
-          <dl class="receipt-total" id="receipt-total" aria-label="Jumlah komitmen"></dl>
-          <p class="helper">Tekan bulatan untuk tanda dah bayar. Setiap perubahan disimpan terus pada peranti ini.</p>
+          <dl class="receipt-total" id="receipt-total" data-i18n-attr="aria-label:commit.totalAria" aria-label="Jumlah komitmen"></dl>
+          <p class="helper" data-i18n="commit.helper">Tekan bulatan untuk tanda dah bayar. Setiap perubahan disimpan terus pada peranti ini.</p>
         </article>
       </section>
 
       <!-- ═══ JADUAL ═══ -->
-      <section class="view view-narrow" id="view-jadual" data-tab="jadual" aria-label="Jadual" hidden>
+      <section class="view view-narrow" id="view-jadual" data-tab="jadual" hidden>
         <article class="panel timeline-section" id="timeline-section">
-          <div class="panel-head"><div><p class="eyebrow">04 / jadual</p><h2>Timeline bayaran</h2></div><span class="tl-month-label" id="tl-month-label"></span></div>
-          <p class="muted tl-desc">Semua komitmen bulanan tersusun mengikut tarikh — lihat mana yang akan tiba dan mana yang masih ada masa.</p>
+          <div class="panel-head"><div><p class="eyebrow" data-i18n="sched.eyebrow">04 / jadual</p><h2 data-i18n="sched.title">Timeline bayaran</h2></div></div>
+          <div class="month-nav">
+            <button type="button" class="icon-btn" id="tl-prev" data-i18n-attr="aria-label:sched.prev" aria-label="Bulan sebelum">‹</button>
+            <button type="button" class="month-now" id="tl-now"><span id="tl-month-label"></span></button>
+            <button type="button" class="icon-btn" id="tl-next" data-i18n-attr="aria-label:sched.next" aria-label="Bulan seterusnya">›</button>
+          </div>
+          <p class="muted tl-desc" id="tl-desc" data-i18n="sched.desc">Semua komitmen bulanan tersusun mengikut tarikh.</p>
           <div class="timeline-wrap" id="timeline-list"></div>
         </article>
       </section>
 
       <!-- ═══ RUTIN ═══ -->
-      <section class="view" id="view-rutin" data-tab="rutin" aria-label="Rutin" hidden>
+      <section class="view" id="view-rutin" data-tab="rutin" hidden>
         <div class="rutin-grid">
-          <article class="panel commute-panel" id="commute-section"><div class="panel-head"><div><p class="eyebrow">05 / perjalanan</p><h2>Rutin komuter</h2></div><span class="roundel" id="commute-roundel">AXIA</span></div><p class="muted">Anggaran petrol harian berdasarkan perjalanan ke kelas.</p><div class="commute-stat"><div><span class="label">Kos sebulan</span><strong id="commute-total">—</strong></div><div><span class="label">Kos sehari</span><strong id="commute-daily">—</strong></div></div><div class="field-grid"><label>Jarak sehala (km)<input id="distance" type="number" inputmode="decimal" min="0" step="0.1"></label><label>Hari / bulan<input id="days" type="number" inputmode="numeric" min="0" max="31" step="1"></label><label>Kecekapan (km/L)<input id="efficiency" type="number" inputmode="decimal" min="1" step="0.1"></label><label>Harga petrol / L<input id="fuel-price" type="number" inputmode="decimal" min="0" step="0.01"></label></div><label class="toggle-label"><input id="round-trip" type="checkbox"><span class="toggle"></span> Kira perjalanan pergi-balik</label></article>
-          <article class="panel target-panel" id="settings"><p class="eyebrow">06 / niat</p><h2>Ruang untuk simpan</h2><p class="muted">Tetapkan angka asas supaya baki anda ada arah.</p><div class="field-grid"><label>Pendapatan bulanan<input id="income-input" type="number" inputmode="decimal" min="0" step="0.01"></label><label>Sasaran simpanan<input id="savings-target" type="number" inputmode="decimal" min="0" step="0.01"></label></div><div class="target-callout"><span id="target-percent">0%</span><p>daripada baki semasa<br>disisihkan</p></div></article>
+          <article class="panel commute-panel" id="commute-section"><div class="panel-head"><div><p class="eyebrow" data-i18n="routine.eyebrow">05 / perjalanan</p><h2 data-i18n="routine.title">Rutin komuter</h2></div><span class="roundel" id="commute-roundel">AXIA</span></div><p class="muted" data-i18n="routine.desc">Anggaran petrol harian.</p><div class="commute-stat"><div><span class="label" data-i18n="routine.month">Kos sebulan</span><strong id="commute-total">—</strong></div><div><span class="label" data-i18n="routine.day">Kos sehari</span><strong id="commute-daily">—</strong></div></div><div class="field-grid"><label><span data-i18n="routine.distance">Jarak sehala (km)</span><input id="distance" type="number" inputmode="decimal" min="0" step="0.1"></label><label><span data-i18n="routine.days">Hari / bulan</span><input id="days" type="number" inputmode="numeric" min="0" max="31" step="1"></label><label><span data-i18n="routine.efficiency">Kecekapan (km/L)</span><input id="efficiency" type="number" inputmode="decimal" min="1" step="0.1"></label><label><span data-i18n="routine.fuel">Harga petrol / L</span><input id="fuel-price" type="number" inputmode="decimal" min="0" step="0.01"></label></div><label class="toggle-label"><input id="round-trip" type="checkbox"><span class="toggle"></span> <span data-i18n="routine.round">Kira perjalanan pergi-balik</span></label></article>
+          <article class="panel target-panel" id="settings"><p class="eyebrow" data-i18n="routine.targetEyebrow">06 / niat</p><h2 data-i18n="routine.targetTitle">Ruang untuk simpan</h2><p class="muted" data-i18n="routine.targetDesc">Tetapkan angka asas.</p><div class="field-grid"><label><span data-i18n="routine.income">Pendapatan bulanan</span><input id="income-input" type="number" inputmode="decimal" min="0" step="0.01"></label><label><span data-i18n="routine.targetField">Sasaran simpanan</span><input id="savings-target" type="number" inputmode="decimal" min="0" step="0.01"></label></div><div class="target-callout"><span id="target-percent">0%</span><p data-i18n-html="routine.callout">daripada baki semasa<br>disisihkan</p></div></article>
         </div>
-        <section class="assumption-note"><span class="note-icon">i</span><p><b>Nota andaian.</b> Kos petrol belum dimasukkan sebagai komitmen bulanan. Masukkan harga petrol dan rutin perjalanan untuk melihat anggaran; tambahkannya ke senarai jika mahu ia menolak baki secara automatik.</p></section>
+        <article class="panel" id="recurring-section">
+          <div class="panel-head"><div><p class="eyebrow" data-i18n="routine.recEyebrow">07 / berulang</p><h2 data-i18n="routine.recTitle">Bayaran berulang</h2></div><button class="add-btn" type="button" data-act="add-rec" data-i18n="commit.add">+ Tambah item</button></div>
+          <p class="muted" data-i18n="routine.recDesc">Semua komitmen berulang setiap bulan.</p>
+          <ul class="rec-list" id="recurring-list"></ul>
+        </article>
+        <section class="assumption-note"><span class="note-icon">i</span><p data-i18n-html="routine.note"></p></section>
       </section>
 
       <!-- ═══ DATA ═══ -->
-      <section class="view" id="view-data" data-tab="data" aria-label="Data" hidden>
+      <section class="view view-narrow" id="view-data" data-tab="data" hidden>
         <article class="panel data-section" id="data-section">
-          <div class="panel-head"><div><p class="eyebrow">07 / data</p><h2>Sandaran &amp; pemulihan</h2></div><span class="tl-month-label">v<span id="app-version"></span></span></div>
-          <p class="muted">Data anda disimpan dalam pelayar pada peranti ini dan disegerak ke awan bila ada internet. Simpan fail sandaran sekali-sekala — itu satu-satunya salinan yang anda pegang sendiri.</p>
-          <div class="data-grid">
-            <div class="data-card">
-              <h3>Fail sandaran</h3>
-              <dl class="kv"><div><dt>Sandaran terakhir</dt><dd id="last-backup">—</dd></div><div><dt>Rekod aktif</dt><dd id="record-count">—</dd></div></dl>
-              <div class="btn-row"><button class="add-btn" id="export-btn" type="button">Eksport sandaran</button><button class="secondary-btn" id="import-btn" type="button">Import sandaran</button><input id="import-file" type="file" accept="application/json,.json" hidden></div>
-              <p class="fine">Eksport menghasilkan fail <code>.json</code>. Untuk pindah ke peranti lain: eksport di sini, kemudian import di peranti baharu.</p>
-            </div>
-            <div class="data-card">
-              <h3>Status simpanan</h3>
-              <dl class="kv"><div><dt>Storan peranti</dt><dd id="storage-state">—</dd></div><div><dt>Ruang digunakan</dt><dd id="storage-usage">—</dd></div><div><dt>Sync awan</dt><dd id="sync-state">—</dd></div><div><dt>Sync terakhir</dt><dd id="last-sync">—</dd></div><div><dt>Menunggu sync</dt><dd id="pending-count">—</dd></div></dl>
-              <div class="btn-row"><button class="secondary-btn" id="sync-btn" type="button">Segerak sekarang</button></div>
-              <p class="fine">Mengosongkan data pelayar ("Clear site data") akan memadam simpanan peranti. Sync awan terikat pada pelayar ini sahaja.</p>
-            </div>
-            <div class="data-card data-card-wide">
-              <h3>Salinan pemulihan automatik</h3>
-              <p class="fine">Disimpan pada peranti sebelum setiap perubahan besar (import, set semula) dan sekali sehari.</p>
-              <ul class="snap-list" id="snapshot-list"></ul>
-              <div class="btn-row"><button class="danger-btn" id="reset-btn" type="button">Set semula ke angka asal…</button></div>
-            </div>
+          <div class="panel-head"><div><p class="eyebrow" data-i18n="data.eyebrow">08 / data</p><h2 data-i18n="data.title">Sejarah &amp; data</h2></div></div>
+          <p class="muted" data-i18n="data.desc">Semua rekod komitmen.</p>
+          <div class="btn-row"><button class="add-btn" id="export-btn" type="button" data-i18n="data.export">Eksport sandaran</button><button class="secondary-btn" id="import-btn" type="button" data-i18n="data.import">Import sandaran</button><a class="secondary-btn" href="#tetapan" data-i18n="data.toSettings">Sandaran &amp; storan →</a></div>
+          <h3 class="sub-h" data-i18n="data.historyTitle">Sejarah rekod</h3>
+          <div class="list-tools three">
+            <label class="tool-search"><span class="sr-only" data-i18n="data.searchLabel">Cari sejarah</span><input id="hist-search" type="search" data-i18n-attr="placeholder:data.search" autocomplete="off"></label>
+            <label class="tool-sort"><span class="sr-only" data-i18n="data.filterLabel">Tapis jenis</span><select id="hist-filter"><option value="all" data-i18n="data.filterAll">Semua jenis</option><option value="added" data-i18n="act.added">Ditambah</option><option value="updated" data-i18n="act.updated">Dikemas kini</option><option value="deleted" data-i18n="act.deleted">Dipadam</option></select></label>
+            <label class="tool-sort"><span class="sr-only" data-i18n="data.sortLabel">Susun</span><select id="hist-sort"><option value="new" data-i18n="data.sortNew">Terbaru dahulu</option><option value="old" data-i18n="data.sortOld">Terlama dahulu</option><option value="amount" data-i18n="data.sortAmt">Jumlah tertinggi</option></select></label>
           </div>
+          <p class="fine" id="hist-count"></p>
+          <ul class="hist-list" id="hist-list"></ul>
+          <input id="import-file" type="file" accept="application/json,.json" hidden>
+        </article>
+      </section>
+
+      <!-- ═══ TETAPAN ═══ -->
+      <section class="view view-narrow" id="view-tetapan" data-tab="tetapan" hidden>
+        <article class="panel">
+          <p class="eyebrow" data-i18n="set.eyebrow">Tetapan</p><h2 data-i18n="set.title">Pusat tetapan</h2>
+          <h3 class="sub-h" data-i18n="set.appearance">Penampilan</h3>
+          <div class="seg" role="radiogroup" id="theme-seg" data-i18n-attr="aria-label:set.appearance">
+            <button type="button" role="radio" data-theme-pref="light" data-i18n="set.light">Cerah</button>
+            <button type="button" role="radio" data-theme-pref="dark" data-i18n="set.dark">Gelap</button>
+            <button type="button" role="radio" data-theme-pref="system" data-i18n="set.system">Ikut sistem</button>
+          </div>
+          <p class="fine" data-i18n="set.themeNote"></p>
+          <h3 class="sub-h" data-i18n="set.language">Bahasa</h3>
+          <div class="seg" role="radiogroup" id="lang-seg" data-i18n-attr="aria-label:set.language">
+            <button type="button" role="radio" data-lang="ms">Bahasa Melayu</button>
+            <button type="button" role="radio" data-lang="en">English</button>
+          </div>
+          <p class="fine" data-i18n="set.langNote"></p>
+          <div class="preview-card" aria-label="Preview"><span class="label" data-i18n="set.preview">Pratonton</span><strong id="preview-fig">—</strong><span class="metric-note" id="preview-note"></span></div>
+          <h3 class="sub-h" data-i18n="set.profile">Profil</h3>
+          <label class="inline-field"><span data-i18n="set.displayName">Nama paparan</span><input id="display-name" maxlength="30" autocomplete="nickname"></label>
+        </article>
+
+        <article class="panel" id="storage-panel">
+          <h2 data-i18n="set.storage">Storan pelayar</h2>
+          <dl class="kv">
+            <div><dt data-i18n="set.storageType">Jenis storan</dt><dd data-i18n="set.storageTypeVal">IndexedDB</dd></div>
+            <div><dt data-i18n="set.storageState">Status storan</dt><dd id="storage-state">—</dd></div>
+            <div><dt data-i18n="set.storageUsage">Ruang digunakan</dt><dd id="storage-usage">—</dd></div>
+            <div><dt data-i18n="set.records">Rekod aktif</dt><dd id="record-count">—</dd></div>
+            <div><dt data-i18n="set.lastSave">Simpan tempatan terakhir</dt><dd id="last-save">—</dd></div>
+            <div><dt data-i18n="set.lastBackup">Sandaran terakhir</dt><dd id="last-backup">—</dd></div>
+          </dl>
+          <p class="fine warn" data-i18n="set.storageWarn"></p>
+          <div class="btn-row"><button class="add-btn" id="set-export" type="button" data-i18n="set.export">Eksport data</button><button class="secondary-btn" id="set-import" type="button" data-i18n="set.import">Import data</button><button class="secondary-btn" id="set-snapshot" type="button" data-i18n="set.createBackup">Cipta salinan pemulihan</button></div>
+          <h3 class="sub-h" data-i18n="set.snapshots">Salinan pemulihan automatik</h3>
+          <p class="fine" data-i18n="set.snapNote"></p>
+          <ul class="snap-list" id="snapshot-list"></ul>
+          <h3 class="sub-h" data-i18n="set.clearCache">Kosongkan cache</h3>
+          <p class="fine" data-i18n="set.cacheNote"></p>
+          <div class="btn-row"><button class="secondary-btn" id="clear-cache" type="button" data-i18n="set.clearCache">Kosongkan cache</button><button class="danger-btn" id="reset-btn" type="button" data-i18n="set.reset">Set semula aplikasi…</button></div>
+        </article>
+
+        <article class="panel">
+          <h2 data-i18n="set.sync">Penyegerakan awan</h2>
+          <dl class="kv">
+            <div><dt data-i18n="set.syncState">Status sync</dt><dd id="sync-state">—</dd></div>
+            <div><dt data-i18n="set.lastSync">Sync terakhir</dt><dd id="last-sync">—</dd></div>
+            <div><dt data-i18n="set.pending">Menunggu sync</dt><dd id="pending-count">—</dd></div>
+            <div><dt data-i18n="set.syncError">Butiran ralat</dt><dd id="sync-error">—</dd></div>
+          </dl>
+          <div class="btn-row"><button class="secondary-btn" id="sync-btn" type="button" data-i18n="set.syncNow">Segerak sekarang</button></div>
+          <p class="fine" data-i18n="set.syncNote"></p>
+        </article>
+
+        <article class="panel">
+          <h2 data-i18n="set.about">Mengenai</h2>
+          <dl class="kv">
+            <div><dt data-i18n="set.appName">Aplikasi</dt><dd>Ruang Bajet</dd></div>
+            <div><dt data-i18n="set.version">Versi</dt><dd>v<span id="app-version"></span></dd></div>
+            <div><dt data-i18n="set.build">Binaan</dt><dd id="app-build">—</dd></div>
+            <div><dt data-i18n="set.developer">Pembangun</dt><dd>Amzar Syafiq</dd></div>
+          </dl>
+          <p class="fine"><b data-i18n="set.privacy">Privasi</b> — <span data-i18n="set.privacyText"></span></p>
         </article>
       </section>
     </main>
-    <footer><span>RUANG BAJET / AMZAR</span><span>Direka untuk semakan bulanan</span></footer>
+    <footer><span>RUANG BAJET / AMZAR</span><span id="footer-note"></span></footer>
   </div>
 
-  <div class="modal-backdrop" id="modal"><form class="modal" id="expense-form" novalidate aria-labelledby="modal-title" role="dialog" aria-modal="true"><button type="button" class="close-btn" id="close-modal" aria-label="Tutup">×</button><p class="eyebrow">Komitmen</p><h2 id="modal-title">Item baru</h2><label>Nama item<input id="expense-name" maxlength="80" placeholder="Contoh: Makan" autocomplete="off"></label><label>Kategori<select id="expense-category"><option>Rumah</option><option>BNPL</option><option>Internet</option><option>AI</option><option>Pengangkutan</option><option>Lain-lain</option></select></label><label>Jumlah / bulan (RM)<input id="expense-amount" type="number" inputmode="decimal" min="0" step="0.01"></label><label>Hari bayar (1–31, pilihan)<input id="expense-dueday" type="number" inputmode="numeric" min="1" max="31" step="1" placeholder="cth: 15"></label><p class="form-error" id="expense-error" role="alert" hidden></p><div class="modal-actions"><button type="button" class="secondary-btn" id="cancel-modal">Batal</button><button class="add-btn" type="submit" id="expense-submit">Simpan item</button></div></form></div>
+  <nav class="app-nav" id="app-nav" data-i18n-attr="aria-label:nav.menu" aria-label="Menu utama">
+    <span class="nav-ind" aria-hidden="true"></span>
+    <a href="#utama" data-tab="utama"><span class="nav-glyph" aria-hidden="true"><svg viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1.2"/><rect x="9" y="2" width="5" height="5" rx="1.2"/><rect x="2" y="9" width="5" height="5" rx="1.2"/><rect x="9" y="9" width="5" height="5" rx="1.2"/></svg></span><span class="nav-label" data-i18n="nav.home">Utama</span></a>
+    <a href="#komitmen" data-tab="komitmen"><span class="nav-glyph" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M5.5 4h8M5.5 8h8M5.5 12h8"/><path d="M2.5 4h.01M2.5 8h.01M2.5 12h.01"/></svg></span><span class="nav-label" data-i18n="nav.commitments">Komitmen</span></a>
+    <a href="#jadual" data-tab="jadual"><span class="nav-glyph" aria-hidden="true"><svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" rx="1.6"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3"/></svg></span><span class="nav-label" data-i18n="nav.schedule">Jadual</span></a>
+    <a href="#rutin" data-tab="rutin"><span class="nav-glyph" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M2 5h12M2 11h12"/><circle cx="5.5" cy="5" r="1.8"/><circle cx="10.5" cy="11" r="1.8"/></svg></span><span class="nav-label" data-i18n="nav.routine">Rutin</span></a>
+    <a href="#data" data-tab="data"><span class="nav-glyph" aria-hidden="true"><svg viewBox="0 0 16 16"><ellipse cx="8" cy="4" rx="5.5" ry="2"/><path d="M2.5 4v8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2V4M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2"/></svg></span><span class="nav-label" data-i18n="nav.data">Data</span></a>
+    <a href="#tetapan" data-tab="tetapan" class="nav-settings"><span class="nav-glyph" aria-hidden="true"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.2"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4"/></svg></span><span class="nav-label" data-i18n="nav.settings">Tetapan</span></a>
+  </nav>
 
-  <div class="modal-backdrop" id="dialog"><div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="dialog-title"><p class="eyebrow" id="dialog-eyebrow">Pengesahan</p><h2 id="dialog-title"></h2><div class="dialog-body" id="dialog-body"></div><div class="modal-actions" id="dialog-actions"></div></div></div>
+  <div class="modal-backdrop" id="modal"><form class="modal" id="expense-form" novalidate aria-labelledby="modal-title" role="dialog" aria-modal="true"><button type="button" class="close-btn" id="close-modal" data-i18n-attr="aria-label:common.close" aria-label="Tutup">×</button><p class="eyebrow" data-i18n="form.eyebrow">Komitmen</p><h2 id="modal-title">Item baru</h2><label><span data-i18n="form.name">Nama item</span><input id="expense-name" maxlength="80" data-i18n-attr="placeholder:form.namePh" autocomplete="off"></label><label><span data-i18n="form.category">Kategori</span><select id="expense-category"></select></label><label><span data-i18n="form.amount">Jumlah / bulan (RM)</span><input id="expense-amount" type="number" inputmode="decimal" min="0" step="0.01"></label><label><span data-i18n="form.dueDay">Hari bayar (1–31, pilihan)</span><input id="expense-dueday" type="number" inputmode="numeric" min="1" max="31" step="1" data-i18n-attr="placeholder:form.dueDayPh"></label><p class="form-error" id="expense-error" role="alert" hidden></p><div class="modal-actions"><button type="button" class="secondary-btn" id="cancel-modal" data-i18n="common.cancel">Batal</button><button class="add-btn" type="submit" id="expense-submit" data-i18n="form.submit">Simpan item</button></div></form></div>
+
+  <div class="modal-backdrop" id="dialog"><div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="dialog-title"><p class="eyebrow" id="dialog-eyebrow"></p><h2 id="dialog-title"></h2><div class="dialog-body" id="dialog-body"></div><div class="modal-actions" id="dialog-actions"></div></div></div>
 
   <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
   <script type="module" src="app.js"></script>

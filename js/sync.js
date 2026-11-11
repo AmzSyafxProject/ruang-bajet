@@ -31,7 +31,7 @@ async function connect() {
         import(`${SDK}/firebase-app.js`), import(`${SDK}/firebase-auth.js`), import(`${SDK}/firebase-database.js`),
       ]), TIMEOUT, 'Muat Firebase');
       const fa = app.initializeApp(config);
-      const cred = await withTimeout(auth.signInAnonymously(auth.getAuth(fa)), TIMEOUT, 'Log masuk');
+      const cred = await withTimeout(auth.signInAnonymously(auth.getAuth(fa)), TIMEOUT, 'Sign-in');
       fb = db;
       const database = db.getDatabase(fa);
       status.uid = cred.user.uid;
@@ -47,7 +47,7 @@ async function connect() {
 async function cycle() {
   await connect();
   set('syncing');
-  const snap = await withTimeout(fb.get(userRef), TIMEOUT, 'Baca awan');
+  const snap = await withTimeout(fb.get(userRef), TIMEOUT, 'Cloud read');
   const remote = snap.exists() ? snap.val() || {} : {};
   status.lastPullAt = Date.now();
 
@@ -64,7 +64,7 @@ async function cycle() {
     const updates = { 'v2/meta': { schemaVersion: 2, updatedAt: now() } };
     for (const i of items) updates[`v2/${i.path}`] = i.value;
     // update() berbilang laluan: hanya menyentuh v2/*, medan lama kekal sebagai salinan pemulihan.
-    await withTimeout(fb.update(userRef, updates), TIMEOUT, 'Tulis awan'); // resolve = pelayan sahkan
+    await withTimeout(fb.update(userRef, updates), TIMEOUT, 'Cloud write'); // resolve = pelayan sahkan
     await store.markSynced(items);
   } else if (!store.state.settings.has('_lastSyncedAt') || remote.v2) {
     await store.markSynced([]);

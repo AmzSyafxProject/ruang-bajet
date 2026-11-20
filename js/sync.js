@@ -83,7 +83,7 @@ export function syncNow() {
     } catch (e) {
       console.warn('[sync]', e);
       // CDN / rangkaian tiada => "unavailable" (bukan ralat pengguna); selainnya ralat sync sebenar.
-      const offline = !navigator.onLine || !userRef;
+      const offline = !navigator.onLine;
       set(offline ? 'unavailable' : 'error', e);
       timer = setTimeout(syncNow, BACKOFF[Math.min(fails++, BACKOFF.length - 1)]);
     } finally { running = null; }
@@ -104,4 +104,15 @@ export function start() {
     if (document.visibilityState === 'visible' && Date.now() - status.lastPullAt > 60000) schedule(0);
   });
   schedule(0);
+}
+
+// Terjemah ralat Firebase kepada kunci i18n (syncErr.*) supaya punca sebenar jelas di Tetapan.
+export function explain(e) {
+  const c = String(e?.code || ''), m = String(e?.message || e || '').toLowerCase();
+  if (/permission_denied|permission denied/.test(c + m)) return 'rules';
+  if (/operation-not-allowed|admin-restricted|configuration-not-found/.test(c + m)) return 'auth';
+  if (/api-key|invalid-api/.test(c + m)) return 'key';
+  if (/network|timed out|tamat masa/.test(c + m)) return 'net';
+  if (/failed to fetch|import|module/.test(m)) return 'sdk';
+  return 'other';
 }

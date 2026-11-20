@@ -418,5 +418,13 @@
  },
  "footer": {
   "note": "Built for monthly check-ins"
+ },
+ "syncErr": {
+  "rules": "Firebase denied access (PERMISSION_DENIED). Check Realtime Database → Rules: allow read/write when auth.uid equals $uid under users/$uid.",
+  "auth": "Anonymous sign-in is not enabled. Firebase Console → Authentication → Sign-in method → Anonymous → Enable.",
+  "key": "The Firebase API key is invalid or restricted. Check the API key and its domain restrictions.",
+  "net": "The connection to Firebase failed or timed out. Check your internet; it will retry automatically.",
+  "sdk": "The Firebase library could not be loaded (CDN blocked?). Your data is still safe on this device.",
+  "other": "Unknown sync error."
  }
 }

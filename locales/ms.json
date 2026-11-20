@@ -418,5 +418,13 @@
  },
  "footer": {
   "note": "Direka untuk semakan bulanan"
+ },
+ "syncErr": {
+  "rules": "Firebase menolak akses (PERMISSION_DENIED). Semak Realtime Database → Rules: benarkan baca/tulis bila auth.uid sama dengan $uid pada users/$uid.",
+  "auth": "Log masuk tanpa nama belum dihidupkan. Firebase Console → Authentication → Sign-in method → Anonymous → Enable.",
+  "key": "Kunci API Firebase tidak sah atau disekat. Semak API key dan sekatan domain.",
+  "net": "Sambungan ke Firebase gagal atau tamat masa. Semak internet; akan cuba lagi automatik.",
+  "sdk": "Pustaka Firebase tidak dapat dimuat (CDN disekat?). Data tetap selamat pada peranti.",
+  "other": "Ralat sync tidak dikenali."
  }
 }

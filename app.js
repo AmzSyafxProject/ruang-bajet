@@ -349,7 +349,7 @@ const renderSettings = debounce(async () => {
   $('sync-state').textContent = t(`sync.${SYNC_KEY[sync.status.phase] || 'off'}`);
   $('last-sync').textContent = fmtDateTimeL(st.settings.get('_lastSyncedAt')?.value);
   $('pending-count').textContent = t('set.pendingN', { n: st.pending.size });
-  $('sync-error').textContent = sync.status.error ? String(sync.status.error.message || sync.status.error) : t('sync.noError');
+  $('sync-error').textContent = sync.status.error ? `${t('syncErr.' + sync.explain(sync.status.error))} (${sync.status.error.code || sync.status.error.message || sync.status.error})` : t('sync.noError');
   $('app-version').textContent = APP_VERSION;
   if (!st.storageOk) { $('storage-state').textContent = t('set.unavailable'); return; }
   const info = await store.storageInfo();

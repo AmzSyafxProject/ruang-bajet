@@ -491,6 +491,20 @@ $('close-modal').onclick = closeModal;
 $('cancel-modal').onclick = closeModal;
 $('modal').onclick = e => { if (e.target.id === 'modal') closeModal(); };
 
+// ---------- Edit angka terus dari Utama ----------
+document.querySelectorAll('[data-edit]').forEach(b => {
+  b.onclick = async () => {
+    const key = b.dataset.edit, label = t(key === 'incomeSen' ? 'home.income' : 'home.target');
+    const ok = await ask({ title: label, eyebrow: t('fig.eyebrow'),
+      body: `<label>${esc(label)} (RM)<input id="fig-input" type="number" inputmode="decimal" min="0" step="0.01" value="${esc(senToInput(store.getSetting(key)))}"></label><p class="fine">${esc(t('fig.hint'))}</p>`,
+      actions: [{ label: t('common.cancel'), value: false }, { label: t('common.save'), kind: 'add-btn', value: true }] });
+    if (!ok) return;
+    const v = Number($('fig-input').value);
+    if (!Number.isFinite(v) || v < 0) return toast(t('form.errAmount'), { kind: 'error' });
+    guard(store.setSetting(key, toSen(v))).then(() => toast(t('toast.figSaved'), { kind: 'ok', ms: 2000 }));
+  };
+});
+
 // ---------- Tetapan rutin (auto-simpan dengan debounce) ----------
 const savers = {};
 const saveSetting = (key, read) => {

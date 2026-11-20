@@ -25,7 +25,8 @@
   "edit": "Edit",
   "delete": "Delete",
   "none": "—",
-  "items": "{n} items"
+  "items": "{n} items",
+  "save": "Save"
  },
  "status": {
   "loading": "Loading…",
@@ -370,7 +371,8 @@
   "ptrOk": "Updated from the cloud",
   "ptrFail": "Cannot reach the cloud — showing on-device data",
   "conflict": "{n} changes from another device were newer. This device's version is kept under \"Restore points\".",
-  "langChanged": "Language changed"
+  "langChanged": "Language changed",
+  "figSaved": "Figure saved"
  },
  "banner": {
   "noStorage": "<b>Device storage is unavailable.</b> Changes will NOT be saved ({msg}). Close Private/Incognito mode or use another browser.",
@@ -426,5 +428,9 @@
   "net": "The connection to Firebase failed or timed out. Check your internet; it will retry automatically.",
   "sdk": "The Firebase library could not be loaded (CDN blocked?). Your data is still safe on this device.",
   "other": "Unknown sync error."
+ },
+ "fig": {
+  "eyebrow": "Edit figure",
+  "hint": "Saved on this device right away and synced to the cloud."
  }
 }

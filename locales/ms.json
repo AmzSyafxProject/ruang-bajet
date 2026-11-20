@@ -25,7 +25,8 @@
   "edit": "Edit",
   "delete": "Padam",
   "none": "—",
-  "items": "{n} item"
+  "items": "{n} item",
+  "save": "Simpan"
  },
  "status": {
   "loading": "Memuatkan…",
@@ -370,7 +371,8 @@
   "ptrOk": "Dikemas kini dari awan",
   "ptrFail": "Tak dapat hubungi awan — data peranti dipaparkan",
   "conflict": "{n} perubahan dari peranti lain lebih baharu. Versi peranti ini disimpan dalam \"Salinan pemulihan\".",
-  "langChanged": "Bahasa ditukar"
+  "langChanged": "Bahasa ditukar",
+  "figSaved": "Angka disimpan"
  },
  "banner": {
   "noStorage": "<b>Storan peranti tidak tersedia.</b> Perubahan TIDAK akan disimpan ({msg}). Tutup mod Private/Incognito atau guna pelayar lain.",
@@ -426,5 +428,9 @@
   "net": "Sambungan ke Firebase gagal atau tamat masa. Semak internet; akan cuba lagi automatik.",
   "sdk": "Pustaka Firebase tidak dapat dimuat (CDN disekat?). Data tetap selamat pada peranti.",
   "other": "Ralat sync tidak dikenali."
+ },
+ "fig": {
+  "eyebrow": "Edit angka",
+  "hint": "Disimpan terus pada peranti ini dan disegerak ke awan."
  }
 }

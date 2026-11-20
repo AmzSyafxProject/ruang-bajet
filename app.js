@@ -570,6 +570,49 @@ function showTab(tab) {
   window.scrollTo({ top: 0, behavior: 'instant' });
   if (tab === 'utama' && !first && store.state.ready) replayHome();
 }
+// Tahan & seret pada bar navigasi (gaya iOS): penunjuk kaca mengikut jari, lepas = pilih tab.
+(() => {
+  let drag = null, suppress = false;
+  const linkAt = x => navLinks.find(l => l.offsetParent && x >= l.getBoundingClientRect().left && x <= l.getBoundingClientRect().right);
+  const horizontal = () => getComputedStyle(nav).flexDirection === 'row';
+  nav.addEventListener('pointerdown', e => {
+    if (!horizontal() || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    drag = { x0: e.clientX, id: e.pointerId, on: false, timer: setTimeout(() => begin(), 180) };
+  });
+  function begin() {
+    if (!drag || drag.on) return;
+    drag.on = true; suppress = true;
+    nav.setPointerCapture?.(drag.id);
+    navInd.classList.add('dragging');
+  }
+  nav.addEventListener('pointermove', e => {
+    if (!drag) return;
+    if (!drag.on && Math.abs(e.clientX - drag.x0) > 6) begin();
+    if (!drag.on) return;
+    const nr = nav.getBoundingClientRect(), w = navInd.offsetWidth;
+    const left = Math.max(4, Math.min(nr.width - w - 4, e.clientX - nr.left - w / 2));
+    navInd.style.setProperty('--x', `${left}px`);
+    const hov = linkAt(e.clientX);
+    navLinks.forEach(l => l.toggleAttribute('data-hover', l === hov));
+    drag.hov = hov;
+  });
+  const end = e => {
+    if (!drag) return;
+    clearTimeout(drag.timer);
+    const d = drag; drag = null;
+    navLinks.forEach(l => l.removeAttribute('data-hover'));
+    if (!d.on) return;
+    navInd.classList.remove('dragging');
+    const target = (d.hov || linkAt(e.clientX) || {}).dataset?.tab;
+    if (target && target !== curTab) location.hash = target; else moveIndicator();
+    setTimeout(() => { suppress = false; }, 50);
+  };
+  nav.addEventListener('pointerup', end);
+  nav.addEventListener('pointercancel', end);
+  nav.addEventListener('click', e => { if (suppress) { e.preventDefault(); e.stopPropagation(); } }, true);
+  nav.addEventListener('contextmenu', e => e.preventDefault());
+  nav.addEventListener('dragstart', e => e.preventDefault());
+})();
 document.querySelectorAll('[data-go]').forEach(b => { b.onclick = () => { location.hash = b.dataset.go; }; });
 addEventListener('hashchange', () => showTab(location.hash.slice(1)));
 addEventListener('resize', moveIndicator);
